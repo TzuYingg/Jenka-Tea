@@ -5,12 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>庄腳・煮茶</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{--cream:#F6F3ED;--card:#FCFAF6;--surface:#FCFAF6;--ink:#2B2824;--ink2:#6B665C;--ink3:#9C978C;--border:#E7E2D8;--tint:#F0ECE3;--neutral:#D8D2C6;--ok:#5F8268;--ok-soft:#E9EFE9;--warn:#B6863C;--warn-soft:#F6EEDD;--danger:#A2503C;--danger-soft:#F3E3DC;--accent:#2E6E64;--accent-soft:#E3EEEB;--navh:58px;}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
 html,body{background:var(--cream);color:var(--ink);font-family:"Noto Sans TC",sans-serif;-webkit-font-smoothing:antialiased}
-.mono{font-family:"DM Mono",monospace}
+.mono{font-family:"Noto Sans TC",sans-serif}
+.mono,.htot,.resn,.bvol,.val,.sv,.tm,.hbreak .pot,.card .meta b{font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
 .wrap{max-width:480px;margin:0 auto;padding:18px 20px;padding-bottom:calc(var(--navh) + env(safe-area-inset-bottom) + 24px)}
 .head{margin-bottom:6px;display:flex;align-items:center;gap:8px}
 .title{font-size:20px;font-weight:700;letter-spacing:.5px;display:flex;align-items:center;gap:8px}
@@ -28,30 +29,42 @@ html,body{background:var(--cream);color:var(--ink);font-family:"Noto Sans TC",sa
 .mini{display:flex;background:var(--tint);border-radius:14px;padding:2px;margin-left:auto}
 .mini button{border:0;background:transparent;color:var(--ink3);font-family:inherit;font-size:11px;font-weight:600;padding:5px 11px;border-radius:12px;cursor:pointer}
 .mini button.on{background:#fff;color:var(--ink);box-shadow:0 1px 2px rgba(43,40,36,.12)}
-.handover{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 16px;box-shadow:0 1px 3px rgba(43,40,36,.07);margin-bottom:16px}
-.handover .label{font-size:11px;font-weight:700;letter-spacing:1px;color:var(--ink3);margin-bottom:8px}
-.handover .hline{font-size:15px;font-weight:600;color:var(--ink);font-family:"DM Mono",monospace;padding:5px 0;line-height:1.5}
-.handover .hline .tn{font-family:"Noto Sans TC";font-weight:700;margin-right:6px}
-.handover .hline.off{color:var(--ink3);font-size:13px}
-.handover .copy{margin-top:10px;width:100%;background:var(--tint);border:1px solid var(--border);color:var(--ink2);font-family:inherit;font-size:12px;font-weight:600;padding:9px 0;border-radius:9px;cursor:pointer}
+.handover{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:6px 16px 14px;box-shadow:0 1px 3px rgba(43,40,36,.07);margin-bottom:16px}
+.handover .label{font-size:11px;font-weight:700;letter-spacing:1px;color:var(--ink3);padding:13px 0 4px}
+.hrow{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
+.hrow:last-of-type{border-bottom:0}
+.hrow .hl{min-width:0}
+.hrow .htn{font-size:15px;font-weight:600;display:flex;align-items:center;gap:7px}
+.hrow .htn .cd{width:7px;height:7px;border-radius:50%;background:var(--accent);flex:none}
+.hrow.off .htn .cd{background:var(--neutral)}
+.hrow .hpot{display:flex;align-items:center;gap:9px;margin-top:7px}
+.hrow .hpot .pb{font-size:11px;font-weight:700;color:var(--accent);background:var(--accent-soft);border-radius:8px;padding:3px 9px;flex:none}
+.hrow .hpot .pvol{font-size:15px;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums}
+.hrow .hpot .pnone{font-size:12.5px;font-weight:600;color:var(--warn);background:var(--warn-soft);border-radius:8px;padding:3px 9px}
+.hrow .hpot.single{margin-top:6px}
+.hrow .htag{background:var(--accent-soft);border-radius:8px;padding:3px 9px;font-size:12.5px;color:var(--accent);font-weight:600}
+.hrow .htot{margin-left:auto;font-family:"Noto Sans TC",monospace;font-size:21px;font-weight:500;color:var(--accent);white-space:nowrap;line-height:1}
+.hrow .htot span{font-size:11px;color:var(--ink3);margin-left:3px}
+.hrow.off .htot{color:var(--ink3);font-size:14px;font-weight:600}
+.handover .copy{margin-top:13px;width:100%;background:var(--ink);border:0;color:#fff;font-family:inherit;font-size:13px;font-weight:600;padding:11px 0;border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px}
 .sect{font-size:11px;font-weight:700;letter-spacing:1.4px;color:var(--ink3);margin:18px 2px 9px;display:flex;align-items:center;gap:7px}
 .sect .dot{width:7px;height:7px;border-radius:50%;background:var(--neutral)}
 .card{background:var(--card);border:1px solid var(--border);border-radius:13px;padding:14px 15px;box-shadow:0 1px 3px rgba(43,40,36,.07);margin-bottom:9px}
 .card .top{display:flex;align-items:flex-start;gap:10px}
 .card .sdot{width:9px;height:9px;border-radius:50%;background:var(--neutral);margin-top:5px;flex:none}
 .card.ok .sdot{background:var(--ok)}
-.card .name{font-size:15px;font-weight:600} .card .meta{font-size:11px;color:var(--ink3);margin-top:3px} .card .meta b{color:var(--ink2);font-family:"DM Mono",monospace;font-weight:500}
+.card .name{font-size:15px;font-weight:600} .card .meta{font-size:11px;color:var(--ink3);margin-top:3px} .card .meta b{color:var(--ink2);font-family:"Noto Sans TC",monospace;font-weight:500}
 .card .right{margin-left:auto;text-align:right;flex:none;padding-left:8px}
 .card .res{font-size:11px;color:var(--ink3);font-weight:600} .card.ok .res{color:var(--ok)}
-.card .resn{font-family:"DM Mono",monospace;font-size:16px;font-weight:500;color:var(--accent)}
+.card .resn{font-family:"Noto Sans TC",monospace;font-size:16px;font-weight:500;color:var(--accent)}
 .card .ing{display:flex;flex-wrap:wrap;gap:6px}
-.card .ing span.cup{background:var(--accent-soft);color:var(--accent);border-radius:8px;padding:6px 10px;font-size:12px;font-weight:600} .card .ing span.cup b{font-family:"DM Mono",monospace;color:var(--accent);font-weight:500}
+.card .ing span.cup{background:var(--accent-soft);color:var(--accent);border-radius:8px;padding:6px 10px;font-size:12px;font-weight:600} .card .ing span.cup b{font-family:"Noto Sans TC",monospace;color:var(--accent);font-weight:500}
 .step{display:flex;align-items:center;gap:10px;margin-top:11px}
 .step .lab{font-size:12px;color:var(--ink2);font-weight:500}
 .step .ctrl{margin-left:auto;display:flex;align-items:center;gap:8px}
 .step button{width:32px;height:32px;border-radius:9px;border:1px solid var(--border);background:var(--surface);color:var(--ink);font-size:19px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:inherit}
 .step button:active{background:var(--tint)}
-.step .val{width:64px;text-align:center;font-family:"DM Mono",monospace;font-size:16px;font-weight:500;color:var(--ink);border:1px solid var(--border);border-radius:9px;background:var(--surface);padding:6px 0}
+.step .val{width:64px;text-align:center;font-family:"Noto Sans TC",monospace;font-size:16px;font-weight:500;color:var(--ink);border:1px solid var(--border);border-radius:9px;background:var(--surface);padding:6px 0}
 .step .val:focus{outline:0;border-color:var(--accent)}
 .step .vu{font-size:12px;color:var(--ink3);min-width:14px}
 /* 煮茶大卡（每鍋一張） */
@@ -59,15 +72,20 @@ html,body{background:var(--cream);color:var(--ink);font-family:"Noto Sans TC",sa
 .brew .bh{display:flex;align-items:baseline;gap:8px}
 .brew .bname{font-size:17px;font-weight:700}
 .brew .bpot{font-size:11px;color:var(--accent);background:var(--accent-soft);border-radius:9px;padding:2px 8px;font-weight:600}
-.brew .bvol{margin-left:auto;font-family:"DM Mono",monospace;font-size:22px;font-weight:500;color:var(--accent)} .brew .bvol small{font-size:12px;color:var(--ink3)}
-.brew .split{font-size:11.5px;color:var(--ink3);margin-top:3px}
-.brew .ing{display:flex;flex-wrap:wrap;gap:6px;margin-top:11px}
-.brew .ing span{background:var(--tint);border-radius:8px;padding:6px 10px;font-size:12px;color:var(--ink2);font-weight:600}
-.brew .ing span b{font-family:"DM Mono",monospace;color:var(--ink);font-weight:500}
-.brew .ing span.sugar{background:var(--warn-soft);color:var(--warn)} .brew .ing span.sugar b{color:var(--warn)}
+.brew .bvol{margin-left:auto;font-family:"Noto Sans TC",monospace;font-size:22px;font-weight:500;color:var(--accent)} .brew .bvol small{font-size:12px;color:var(--ink3)}
+.brew .bsplit{font-size:14px;color:var(--ink);font-weight:600;margin-top:9px}
+.brew .bsplit .sn{color:var(--warn);font-weight:700} .brew .bsplit .sh{color:var(--accent);font-weight:700}
+.brew .recipe{margin-top:12px;border:1px solid var(--border);border-radius:11px;overflow:hidden}
+.brew .rr{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--surface)}
+.brew .rr + .rr{border-top:1px solid var(--border)}
+.brew .rr .rv{font-size:12px;font-weight:600;color:var(--ink2);background:var(--tint);border-radius:7px;padding:3px 8px;flex:none;font-variant-numeric:tabular-nums}
+.brew .rr .rv.sugar{background:var(--warn-soft);color:var(--warn)}
+.brew .rr .rn{font-size:13.5px;font-weight:600;color:var(--ink)}
+.brew .rr .rg{margin-left:auto;font-size:18px;font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums} .brew .rr .rg small{font-size:12px;color:var(--ink3);font-weight:500;margin-left:1px}
+.brew .rr .rg.sugar{color:var(--warn)}
 .brew .timers{display:flex;gap:8px;margin-top:13px;padding-top:12px;border-top:1px solid var(--border)}
 .tbtn{flex:1;border:1px solid var(--border);background:var(--surface);color:var(--ink);font-family:inherit;font-size:13px;font-weight:600;padding:11px 0;border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px}
-.tbtn .tm{font-family:"DM Mono",monospace;font-size:15px}
+.tbtn .tm{font-family:"Noto Sans TC",monospace;font-size:15px}
 .tbtn.run{background:var(--accent);color:#fff;border-color:var(--accent)}
 .tbtn.rest.run{background:var(--warn);border-color:var(--warn)}
 .tbtn.done{background:var(--ok-soft);color:var(--ok);border-color:#CFE0CF}
@@ -84,7 +102,7 @@ html,body{background:var(--cream);color:var(--ink);font-family:"Noto Sans TC",sa
 .sfield{display:flex;align-items:center;gap:5px;background:var(--tint);border-radius:9px;padding:4px 7px}
 .sfield .sl{font-size:10.5px;color:var(--ink3);font-weight:600} .sfield.cup .sl{color:var(--accent)}
 .sfield button{width:24px;height:24px;border-radius:7px;border:1px solid var(--border);background:#fff;color:var(--ink);font-size:14px;cursor:pointer}
-.sfield .sv{min-width:34px;text-align:center;font-family:"DM Mono",monospace;font-size:12px;font-weight:500}
+.sfield .sv{min-width:34px;text-align:center;font-family:"Noto Sans TC",monospace;font-size:12px;font-weight:500}
 .note{font-size:11px;color:var(--ink3);line-height:1.7;margin-top:16px;padding-top:14px;border-top:1px solid var(--border)}
 .nav{position:fixed;left:0;right:0;bottom:0;height:calc(var(--navh) + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);background:rgba(252,250,246,.96);backdrop-filter:blur(8px);border-top:1px solid var(--border);display:flex;z-index:50}
 .nav button{flex:1;border:0;background:transparent;font-family:inherit;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;color:var(--ink3);font-size:11px;font-weight:600}
@@ -153,13 +171,19 @@ function brewBatches(b, amt){
   });
   return out;
 }
-function handover(b, amt){
+function handoverData(b, amt){
   var none=b.none?(amt[b.none]||0):0, half=b.half?(amt[b.half]||0):0, single=b.single?(amt[b.single]||0):0;
   var total=b.single?single:(half+none);
-  if(total<=0) return {name:b.name, txt:'免煮', off:true};
-  var bs=buckets(total), rem=none, parts=[];
-  bs.forEach(function(v){ var bn=Math.min(rem,v); rem-=bn; parts.push(num(v)+(bn>0?'（'+num(bn)+'無糖）':'')); });
-  return {name:b.name, txt:parts.join('＋'), off:false};
+  if(total<=0) return {name:b.name, off:true};
+  var bs=buckets(total), rem=none, batches=[];
+  bs.forEach(function(v){ var bn=Math.min(rem,v); rem-=bn; batches.push({vol:v, none:bn}); });
+  return {name:b.name, off:false, total:total, none:none, batches:batches};
+}
+function handoverText(b, amt){
+  var d=handoverData(b,amt);
+  if(d.off) return d.name+' 免煮';
+  var parts=d.batches.map(function(bt){ return Math.round(bt.vol)+(bt.none>0?'（'+Math.round(bt.none)+'無糖）':''); });
+  return d.name+' '+parts.join('＋');
 }
 
 function dateInfo(o){ var d=new Date(); d.setDate(d.getDate()+o); var wd=['日','一','二','三','四','五','六'][d.getDay()];
@@ -215,7 +239,7 @@ function setCup(id,val){ var v=parseInt(val,10); st.cup[id]=(isNaN(v)||v<0)?0:v;
 function bumpTot(id,k,dir){ var v=tot[id][k]+dir*500; if(v<0)v=0; tot[id][k]=v; saveMsg=''; render(); }
 function bumpSeal(id,dir){ var v=sealOv[id]+dir; if(v<0)v=0; sealOv[id]=v; saveMsg=''; render(); }
 function bumpSeg(id,i,dir){ var v=segOv[id][i]+dir; if(v<0)v=0; segOv[id][i]=v; saveMsg=''; render(); }
-function copyHandover(){ var lines=BASES.map(function(b){ var amt={}; TEAS.forEach(function(t){amt[t.id]=itemDue(t);}); var ho=handover(b,amt); return ho.name+' '+ho.txt; });
+function copyHandover(){ var amt={}; TEAS.forEach(function(t){amt[t.id]=itemDue(t);}); var lines=BASES.map(function(b){ return handoverText(b,amt); });
   var txt=lines.join('\n'); try{ navigator.clipboard.writeText(txt); planMsg='✓ 已複製交接訊息'; }catch(e){ planMsg='請手動長按複製'; } render(); }
 
 function cloudHTML(){ return '<div class="cloud '+cloud+'"><span class="cd"></span>'+(cloud==='online'?'雲端已連線':cloud==='offline'?'雲端未連線':'連線中')+'</div>'; }
@@ -239,11 +263,19 @@ function pageBrew(){
 function brewCard(b,bt){
   var card=b.id+'_'+bt.idx;
   var pot=bt.n>1?'<span class="bpot">第 '+(bt.idx+1)+' 鍋／共 '+bt.n+' 鍋</span>':'';
-  var split=b.single?'':'<div class="split">無糖 '+num(bt.none)+' ＋ 半糖 '+num(bt.half)+' ml</div>';
-  var ing=bt.ing.map(function(x){ return '<span>'+x.n+' <b>'+x.g+'</b>g</span>'; }).join('');
-  var sugar=bt.sugarG>0?'<span class="sugar">'+(b.single?'糖':'半糖加糖')+' <b>'+bt.sugarG+'</b>g</span>':'';
+  /* 分糖：凸顯 */
+  var split='';
+  if(!b.single && bt.none>0){
+    split='<div class="bsplit">分糖：<span class="sn">無糖 '+num(bt.none)+'</span> ＋ <span class="sh">半糖 '+num(bt.half)+'</span> ml</div>';
+  } else if(!b.single){
+    split='<div class="bsplit">全鍋 <span class="sh">半糖 '+num(bt.half)+'</span> ml</div>';
+  }
+  /* 配方：每列前面標清楚是「幾 ml 的比例」 */
+  var rows='';
+  bt.ing.forEach(function(x){ rows+='<div class="rr"><span class="rv">整鍋 '+num(bt.vol)+' ml</span><span class="rn">'+x.n+'</span><span class="rg">'+x.g+'<small>g</small></span></div>'; });
+  if(bt.sugarG>0){ var sbase=b.single?bt.vol:bt.half; rows+='<div class="rr"><span class="rv sugar">'+(b.single?'整鍋 ':'半糖 ')+num(sbase)+' ml</span><span class="rn">加糖</span><span class="rg sugar">'+bt.sugarG+'<small>g</small></span></div>'; }
   return '<div class="brew"><div class="bh"><span class="bname">'+b.name+'</span>'+pot+'<span class="bvol">'+num(bt.vol)+'<small> ml</small></span></div>'+split+
-    '<div class="ing">'+ing+sugar+'</div>'+
+    '<div class="recipe">'+rows+'</div>'+
     '<div class="timers">'+timerBtn(card,'steep',b.steep,'悶茶')+timerBtn(card,'rest',b.rest,'醒茶')+'</div></div>';
 }
 function timerBtn(card,phase,mins,label){
@@ -262,11 +294,24 @@ function pagePlan(){
   var di=(st.ctx==='tomorrow')?dateInfo(1):dateInfo(0);
   h+='<div class="daybar"><span>'+(st.ctx==='tomorrow'?'明天':'今天')+'</span><span class="d">'+di.m+'/'+di.day+'（週'+di.wd+'）</span>'+
      '<div class="mini"><button class="'+(st.day==='weekday'?'on':'')+'" onclick="setDay(\'weekday\')">平日</button><button class="'+(st.day==='weekend'?'on':'')+'" onclick="setDay(\'weekend\')">假日</button></div></div>';
-  /* 交接格式總覽 */
+  /* 交接格式總覽（Rei 重做） */
   var amt={}; TEAS.forEach(function(t){ amt[t.id]=itemDue(t); });
   h+='<div class="handover"><div class="label">'+(st.ctx==='tomorrow'?'明天要煮（交接）':'現在要補煮')+'</div>';
-  BASES.forEach(function(b){ var ho=handover(b,amt); h+='<div class="hline'+(ho.off?' off':'')+'"><span class="tn">'+ho.name+'</span>'+ho.txt+'</div>'; });
-  h+='<button class="copy" onclick="copyHandover()">複製交接訊息</button></div>';
+  BASES.forEach(function(b){
+    var d=handoverData(b,amt);
+    if(d.off){ h+='<div class="hrow off"><div class="hl"><div class="htn"><span class="cd"></span>'+b.name+'</div></div><div class="htot">免煮</div></div>'; return; }
+    var sub='';
+    if(d.batches.length>1){
+      d.batches.forEach(function(bt,i){
+        sub+='<div class="hpot"><span class="pb">鍋'+(i+1)+'</span><span class="pvol">'+num(bt.vol)+'</span>'+(bt.none>0?'<span class="pnone">含無糖 '+num(bt.none)+'</span>':'')+'</div>';
+      });
+    } else if(d.none>0){
+      sub='<div class="hpot single"><span class="pnone">含無糖 '+num(d.none)+'</span></div>';
+    }
+    h+='<div class="hrow"><div class="hl"><div class="htn"><span class="cd"></span>'+b.name+'</div>'+sub+'</div>'+
+       '<div class="htot">'+num(d.total)+'<span>ml</span></div></div>';
+  });
+  h+='<button class="copy" onclick="copyHandover()">⧉ 複製交接訊息</button></div>';
   /* 盤點輸入 */
   var lastG='';
   TEAS.forEach(function(t){ if(t.group!==lastG){ h+='<div class="sect"><span class="dot"></span>'+t.group+'</div>'; lastG=t.group; } h+=planCard(t); });
@@ -290,7 +335,7 @@ function pageSet(){
   if(!st.unlocked){
     var lastG='';
     TEAS.forEach(function(t){ if(t.group!==lastG){ h+='<div class="sect"><span class="dot"></span>'+t.group+'</div>'; lastG=t.group; }
-      h+='<div class="srow"><div class="an">'+t.name+'</div><div class="meta" style="font-size:11px;color:var(--ink3);font-family:\'DM Mono\',monospace">平日 '+num(tot[t.id].wk)+' ／ 假日 '+num(tot[t.id].wkd)+' ml　・權重 '+segOv[t.id].join('/')+(t.hasCup?'　・封杯 '+sealOv[t.id]+'杯':'')+'</div></div>'; });
+      h+='<div class="srow"><div class="an">'+t.name+'</div><div class="meta" style="font-size:11px;color:var(--ink3);font-family:\'Noto Sans TC\',monospace">平日 '+num(tot[t.id].wk)+' ／ 假日 '+num(tot[t.id].wkd)+' ml　・權重 '+segOv[t.id].join('/')+(t.hasCup?'　・封杯 '+sealOv[t.id]+'杯':'')+'</div></div>'; });
     h+='<div class="lockbox" style="margin-top:14px"><input id="pwIn" type="password" placeholder="輸入老闆密碼以調整" autocomplete="off"><button onclick="unlock()">解鎖</button></div>';
     if(lockMsg) h+='<div class="msg" style="color:var(--danger)">'+lockMsg+'</div>';
   } else {
