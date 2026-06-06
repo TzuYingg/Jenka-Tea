@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>庄腳・煮茶</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--cream:#F6F3ED;--card:#FCFAF6;--surface:#FCFAF6;--ink:#2B2824;--ink2:#6B665C;--ink3:#9C978C;--border:#E7E2D8;--tint:#F0ECE3;--neutral:#D8D2C6;--ok:#5F8268;--ok-soft:#E9EFE9;--warn:#B6863C;--warn-soft:#F6EEDD;--danger:#A2503C;--danger-soft:#F3E3DC;--accent:#2E6E64;--accent-soft:#E3EEEB;--navh:58px;}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
+html,body{background:var(--cream);color:var(--ink);font-family:"Noto Sans TC",sans-serif;-webkit-font-smoothing:antialiased}
+.mono{font-family:"DM Mono",monospace}
+.wrap{max-width:480px;margin:0 auto;padding:18px 20px;padding-bottom:calc(var(--navh) + env(safe-area-inset-bottom) + 24px)}
+.head{margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.title{font-size:20px;font-weight:700;letter-spacing:.5px;display:flex;align-items:center;gap:8px}
+.title .leaf{width:9px;height:9px;border-radius:50%;background:var(--accent)}
+.cloud{margin-left:auto;font-size:10.5px;font-weight:600;color:var(--ink3);display:flex;align-items:center;gap:5px}
+.cloud .cd{width:7px;height:7px;border-radius:50%;background:var(--neutral)}
+.cloud.online .cd{background:var(--ok)} .cloud.offline .cd{background:var(--warn)}
+.sub{font-size:12px;color:var(--ink3);margin:2px 0 16px}
+.slotseg{display:flex;background:var(--tint);border-radius:12px;padding:3px;margin-bottom:7px}
+.slotseg button{flex:1;border:0;background:transparent;color:var(--ink2);font-family:inherit;font-size:13px;font-weight:600;padding:10px 0;border-radius:10px;cursor:pointer}
+.slotseg button.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(43,40,36,.12)}
+.slothint{font-size:11px;color:var(--ink3);margin:0 2px 14px;line-height:1.5} .slothint b{color:var(--ink2);font-weight:600}
+.daybar{background:var(--card);border:1px solid var(--border);border-radius:11px;padding:11px 13px;margin-bottom:14px;box-shadow:0 1px 3px rgba(43,40,36,.06);display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink2)}
+.daybar .d{font-weight:600;color:var(--ink)}
+.mini{display:flex;background:var(--tint);border-radius:14px;padding:2px;margin-left:auto}
+.mini button{border:0;background:transparent;color:var(--ink3);font-family:inherit;font-size:11px;font-weight:600;padding:5px 11px;border-radius:12px;cursor:pointer}
+.mini button.on{background:#fff;color:var(--ink);box-shadow:0 1px 2px rgba(43,40,36,.12)}
+.glance{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 16px;box-shadow:0 1px 3px rgba(43,40,36,.07);margin-bottom:16px}
+.glance .label{font-size:11px;font-weight:700;letter-spacing:1px;color:var(--ink3)}
+.glance .big{display:flex;align-items:baseline;gap:8px;margin-top:6px}
+.glance .big .n{font-size:28px;font-weight:500;color:var(--accent)} .glance .big .u{font-size:14px;color:var(--ink2)}
+.glance.done .big .n{color:var(--ok)}
+.glance .line{font-size:12.5px;color:var(--ink2);margin-top:6px}
+.glance .chk{display:inline-block;width:14px;height:8px;border:solid var(--ok);border-width:0 0 2px 2px;transform:rotate(-45deg);margin-right:7px;position:relative;top:-2px}
+.sect{font-size:11px;font-weight:700;letter-spacing:1.4px;color:var(--ink3);margin:18px 2px 9px;display:flex;align-items:center;gap:7px}
+.sect .dot{width:7px;height:7px;border-radius:50%;background:var(--neutral)}
+.sect .badge{font-weight:500;letter-spacing:0;color:var(--accent);background:var(--accent-soft);border-radius:10px;padding:2px 8px;font-size:10px}
+/* 煮茶大卡 */
+.brew{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:15px 16px;box-shadow:0 1px 3px rgba(43,40,36,.07);margin-bottom:11px}
+.brew.done{background:var(--ok-soft);border-color:#CFE0CF}
+.brew .bh{display:flex;align-items:baseline;gap:8px}
+.brew .bname{font-size:17px;font-weight:700} .brew .bnote{font-size:10px;color:var(--accent);background:var(--accent-soft);border-radius:9px;padding:2px 7px}
+.brew .bvol{margin-left:auto;font-family:"DM Mono",monospace;font-size:22px;font-weight:500;color:var(--accent)} .brew .bvol small{font-size:12px;color:var(--ink3)}
+.brew.done .bvol{color:var(--ok)}
+.brew .split{font-size:11px;color:var(--ink3);margin-top:3px}
+.brew .ing{display:flex;flex-wrap:wrap;gap:6px;margin-top:11px}
+.brew .ing span{background:var(--tint);border-radius:8px;padding:6px 10px;font-size:12px;color:var(--ink2);font-weight:600}
+.brew .ing span b{font-family:"DM Mono",monospace;color:var(--ink);font-weight:500}
+.brew .ing span.sugar{background:var(--warn-soft);color:var(--warn)} .brew .ing span.sugar b{color:var(--warn)}
+.brew .ing span.cup{background:var(--accent-soft);color:var(--accent)} .brew .ing span.cup b{color:var(--accent)}
+.brew .tline{display:flex;align-items:center;gap:11px;margin-top:13px;padding-top:12px;border-top:1px solid var(--border)}
+.brew .tphase{font-size:12px;font-weight:700;color:#fff;background:var(--accent);border-radius:9px;padding:5px 11px}
+.brew .tphase.rest{background:var(--warn)} .brew .tphase.done{background:var(--ok)}
+.brew .tdisp{font-family:"DM Mono",monospace;font-size:24px;font-weight:500;color:var(--ink)}
+.brew .tinfo{font-size:11.5px;color:var(--ink3);font-weight:600}
+.brew .tbtn{margin-left:auto;border:0;font-family:inherit;font-size:13px;font-weight:600;padding:9px 16px;border-radius:10px;cursor:pointer;background:var(--ink);color:#fff}
+.brew .tbtn.stop{background:var(--surface);color:var(--ink2);border:1px solid var(--border)}
+.brew .tbtn.redo{background:var(--surface);color:var(--ink2);border:1px solid var(--border)}
+/* 備量 卡 */
+.card{background:var(--card);border:1px solid var(--border);border-radius:13px;padding:14px 15px;box-shadow:0 1px 3px rgba(43,40,36,.07);margin-bottom:9px}
+.card .top{display:flex;align-items:flex-start;gap:10px}
+.card .sdot{width:9px;height:9px;border-radius:50%;background:var(--neutral);margin-top:5px;flex:none}
+.card.ok .sdot{background:var(--ok)}
+.card .name{font-size:15px;font-weight:600} .card .meta{font-size:11px;color:var(--ink3);margin-top:3px} .card .meta b{color:var(--ink2);font-family:"DM Mono",monospace;font-weight:500}
+.card .right{margin-left:auto;text-align:right;flex:none;padding-left:8px}
+.card .res{font-size:11px;color:var(--ink3);font-weight:600} .card.ok .res{color:var(--ok)}
+.card .resn{font-family:"DM Mono",monospace;font-size:17px;font-weight:500;color:var(--accent)}
+.card .ing{display:flex;flex-wrap:wrap;gap:6px}
+.card .ing span.cup{background:var(--accent-soft);color:var(--accent);border-radius:8px;padding:6px 10px;font-size:12px;font-weight:600} .card .ing span.cup b{font-family:"DM Mono",monospace;color:var(--accent);font-weight:500}
+.step{display:flex;align-items:center;gap:10px;margin-top:11px}
+.step .lab{font-size:12px;color:var(--ink2);font-weight:500}
+.step .ctrl{margin-left:auto;display:flex;align-items:center;gap:8px}
+.step button{width:32px;height:32px;border-radius:9px;border:1px solid var(--border);background:var(--surface);color:var(--ink);font-size:19px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:inherit}
+.step button:active{background:var(--tint)}
+.step .val{width:56px;text-align:center;font-family:"DM Mono",monospace;font-size:16px;font-weight:500;color:var(--ink);border:1px solid var(--border);border-radius:9px;background:var(--surface);padding:6px 0}
+.step .val:focus{outline:0;border-color:var(--accent)}
+.step .vu{font-size:12px;color:var(--ink3);min-width:14px}
+.bigbtn{width:100%;margin-top:18px;background:var(--ink);border:0;color:#fff;font-family:inherit;font-size:15px;font-weight:600;padding:15px 0;border-radius:12px;cursor:pointer}
+.ghost{width:100%;margin-top:10px;background:var(--surface);border:1px solid var(--border);color:var(--ink2);font-family:inherit;font-size:13px;font-weight:600;padding:12px 0;border-radius:11px;cursor:pointer}
+.msg{font-size:12px;font-weight:600;text-align:center;margin-top:10px}
+.empty{text-align:center;color:var(--ink3);font-size:13px;line-height:1.7;padding:30px 10px}
+/* 設定 */
+.lockbox{display:flex;gap:8px;margin:6px 0 4px}
+.lockbox input{flex:1;border:1px solid var(--border);border-radius:9px;padding:10px 12px;font-family:inherit;font-size:13px;background:var(--surface)} .lockbox input:focus{outline:0;border-color:var(--accent)}
+.lockbox button{border:0;background:var(--ink);color:#fff;font-family:inherit;font-size:13px;font-weight:600;padding:0 16px;border-radius:9px;cursor:pointer}
+.srow{padding:11px 0;border-bottom:1px solid var(--border)} .srow:last-of-type{border-bottom:0}
+.srow .an{font-size:13px;font-weight:600;margin-bottom:7px}
+.sfields{display:flex;flex-wrap:wrap;gap:7px}
+.sfield{display:flex;align-items:center;gap:5px;background:var(--tint);border-radius:9px;padding:4px 7px}
+.sfield .sl{font-size:10.5px;color:var(--ink3);font-weight:600} .sfield.cup .sl{color:var(--accent)}
+.sfield button{width:24px;height:24px;border-radius:7px;border:1px solid var(--border);background:#fff;color:var(--ink);font-size:14px;cursor:pointer}
+.sfield .sv{min-width:22px;text-align:center;font-family:"DM Mono",monospace;font-size:12px;font-weight:500}
+.note{font-size:11px;color:var(--ink3);line-height:1.7;margin-top:16px;padding-top:14px;border-top:1px solid var(--border)}
+/* 底部分頁 */
+.nav{position:fixed;left:0;right:0;bottom:0;height:calc(var(--navh) + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);background:rgba(252,250,246,.96);backdrop-filter:blur(8px);border-top:1px solid var(--border);display:flex;z-index:50}
+.nav button{flex:1;border:0;background:transparent;font-family:inherit;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;color:var(--ink3);font-size:11px;font-weight:600}
+.nav button .ni{width:20px;height:20px;border-radius:6px;border:2px solid currentColor;opacity:.55}
+.nav button.on{color:var(--accent)} .nav button.on .ni{opacity:1;background:var(--accent-soft)}
+</style>
+</head>
+<body>
+<div class="wrap" id="content"></div>
+<div class="nav" id="nav">
+  <button data-pg="brew"><span class="ni"></span>煮茶</button>
+  <button data-pg="plan"><span class="ni"></span>備量</button>
+  <button data-pg="set"><span class="ni"></span>設定</button>
+</div>
+
+<script>
+/* ════ 設定區 ════ 全日總量單位＝公升(L)；potCc 用來把盤點的「壺」換算 ════ */
+var TEAS=[
+  {group:'紅茶', id:'b_half', name:'紅茶 半糖', potCc:4000, wk:22, wkd:26, hasCup:true,  seal:12, seg:[2,1,2]},
+  {group:'紅茶', id:'b_none', name:'紅茶 無糖', potCc:2000, wk:2,  wkd:4,  hasCup:false, seal:0,  seg:[2,1,2]},
+  {group:'濃茶', id:'s_half', name:'濃茶 半糖', potCc:4000, wk:6,  wkd:8,  hasCup:false, seal:0,  seg:[2,1,2]},
+  {group:'濃茶', id:'s_none', name:'濃茶 無糖', potCc:2000, wk:2,  wkd:2,  hasCup:false, seal:0,  seg:[2,1,2]},
+  {group:'奶茶', id:'milk',   name:'奶茶',      potCc:4000, wk:6,  wkd:10, hasCup:true,  seal:6,  seg:[2,1,2]},
+];
+/* 配方：每公升所需克數；steep/rest 分鐘 */
+var BASES=[
+  {id:'black', name:'紅茶', steep:10, rest:10, note:'', sugarPerL:71, ing:[{n:'茶葉(經典)', perL:20}], half:'b_half', none:'b_none'},
+  {id:'strong', name:'濃茶', steep:10, rest:10, note:'', sugarPerL:70, ing:[{n:'茶葉(經典)', perL:32.5}], half:'s_half', none:'s_none'},
+  {id:'milk', name:'奶茶', steep:20, rest:10, note:'', sugarPerL:49, ing:[{n:'茶葉(經典)', perL:6},{n:'茶葉(PA)', perL:20.5},{n:'奶精', perL:120}], single:'milk'},
+];
+var DB='https://jenka-inventory-default-rtdb.asia-southeast1.firebasedatabase.app';
+var CFG_URL=DB+'/jenkaTea/config.json', PLAN_URL=DB+'/jenkaTea/plan.json', ADMIN_PW='jenka@kaka';
+
+var st={page:'brew', slot:'open', day:'weekday', pot:{}, cup:{}, unlocked:false, done:{}};
+var tot={}, sealOv={}, segOv={}, cloud='connecting', planMeta=null, planAmt=null, planMsg='', saveMsg='', saveOk=true, lockMsg='';
+var timers={};
+TEAS.forEach(function(t){ st.pot[t.id]=0; st.cup[t.id]=0; tot[t.id]={wk:t.wk,wkd:t.wkd}; sealOv[t.id]=t.seal; segOv[t.id]=t.seg.slice(); });
+function byId(id){ return TEAS.find(function(x){return x.id===id;}); }
+function baseById(id){ return BASES.find(function(x){return x.id===id;}); }
+
+function fmt(n){ return (n%1===0)?String(n):n.toFixed(1); }
+function dayTotal(t,day){ return day==='weekend'?tot[t.id].wkd:tot[t.id].wk; }
+function remainL(t){ return (st.pot[t.id]||0)*t.potCc/1000 + (t.hasCup?(st.cup[t.id]||0)*0.5:0); }
+function itemDue(t,day){ var d=dayTotal(t,day)-remainL(t); if(d<0)d=0; return Math.round(d*2)/2; }   // 0.5L 為單位
+function dateInfo(o){ var d=new Date(); d.setDate(d.getDate()+o); var wd=['日','一','二','三','四','五','六'][d.getDay()];
+  return {m:d.getMonth()+1, day:d.getDate(), wd:wd, weekend:(d.getDay()===0||d.getDay()===6)}; }
+function hhmm(ts){ var d=new Date(ts); return ('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2); }
+function mmss(s){ s=Math.max(0,s); return Math.floor(s/60)+':'+('0'+(s%60)).slice(-2); }
+
+/* 時段分配：開店前＝早上權重；10–12＝(10-12 + 中午)權重 */
+function shares(id){ var w=segOv[id], s=w[0]+w[1]+w[2]; if(s<=0)return {open:0,off:0}; return {open:w[0]/s, off:(w[1]+w[2])/s}; }
+function slotAmt(){ var o={}; TEAS.forEach(function(t){ var base=(planAmt&&planAmt[t.id])||0; var sh=shares(t.id); o[t.id]=base*(st.slot==='open'?sh.open:sh.off); }); return o; }
+
+/* 配方（給定每項公升數） */
+function recipe(b, amt){
+  var half=b.half?(amt[b.half]||0):0, none=b.none?(amt[b.none]||0):0, single=b.single?(amt[b.single]||0):0;
+  var total=b.single?single:(half+none);
+  var brew=total>0?Math.ceil(total):0;
+  var ing=b.ing.map(function(x){ return {n:x.n, g:Math.round(brew*x.perL)}; });
+  var sugarL=b.single?brew:(total>0?brew*(half/total):0);
+  var sugarG=Math.round(sugarL*b.sugarPerL);
+  return {half:half, none:none, single:single, total:total, brew:brew, ing:ing, sugarG:sugarG};
+}
+
+/* ── 計時 ── */
+function beep(){ try{ var a=new (window.AudioContext||window.webkitAudioContext)(); var o=a.createOscillator(),g=a.createGain(); o.connect(g); g.connect(a.destination); o.frequency.value=880; g.gain.setValueAtTime(.35,a.currentTime); g.gain.exponentialRampToValueAtTime(.001,a.currentTime+.7); o.start(); o.stop(a.currentTime+.7);}catch(e){} }
+function paintTimer(id){ var t=timers[id], el=document.getElementById('tmr-'+id); if(el&&t) el.textContent=mmss(t.remain); }
+function tickTimer(id){ var t=timers[id]; if(!t)return; t.remain--;
+  if(t.remain<=0){ beep(); if(t.phase==='steep'){ var b=baseById(id); t.phase='rest'; t.remain=b.rest*60; render(); }
+    else { clearInterval(t.iv); delete timers[id]; st.done[id]=true; render(); } }
+  else paintTimer(id); }
+function startTimer(id){ var b=baseById(id); if(timers[id])clearInterval(timers[id].iv);
+  st.done[id]=false; timers[id]={phase:'steep', remain:b.steep*60, iv:null}; timers[id].iv=setInterval(function(){tickTimer(id);},1000); beep(); render(); }
+function stopTimer(id){ if(timers[id]){ clearInterval(timers[id].iv); delete timers[id]; } render(); }
+function redo(id){ st.done[id]=false; render(); }
+
+/* ── 雲端 ── */
+function loadConfig(){ cloud='connecting'; render();
+  var ctl=new AbortController(), to=setTimeout(function(){ctl.abort();},6000);
+  fetch(CFG_URL,{signal:ctl.signal}).then(function(r){ clearTimeout(to); if(!r.ok)throw 0; return r.json(); })
+  .then(function(d){ if(d&&d.tot){ TEAS.forEach(function(t){ if(d.tot[t.id]){ tot[t.id]={wk:+d.tot[t.id].wk, wkd:+d.tot[t.id].wkd}; } }); }
+    if(d&&d.seal){ TEAS.forEach(function(t){ if(d.seal[t.id]!=null) sealOv[t.id]=+d.seal[t.id]; }); }
+    if(d&&d.seg){ TEAS.forEach(function(t){ var s=d.seg[t.id]; if(s&&s.length===3) segOv[t.id]=[+s[0],+s[1],+s[2]]; }); }
+    cloud='online'; render(); })
+  .catch(function(){ clearTimeout(to); cloud='offline'; render(); }); }
+function saveConfig(){ var to={}, sl={}, sg={}; TEAS.forEach(function(t){ to[t.id]=tot[t.id]; sl[t.id]=sealOv[t.id]; sg[t.id]=segOv[t.id]; });
+  saveMsg='儲存中…'; saveOk=true; render();
+  fetch(CFG_URL,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({tot:to,seal:sl,seg:sg,updatedAt:Date.now()})})
+  .then(function(r){ if(!r.ok)throw 0; cloud='online'; saveMsg='✓ 已存到雲端'; render(); })
+  .catch(function(){ saveMsg='✕ 儲存失敗（資料庫權限？）'; saveOk=false; render(); }); }
+function submitPlan(){ var plan={}; TEAS.forEach(function(t){ plan[t.id]=itemDue(t,st.day); });
+  var body={plan:plan, remaining:{pot:st.pot,cup:st.cup}, day:st.day, dlabel:dateInfo(1).m+'/'+dateInfo(1).day, at:Date.now()};
+  planMsg='送出中…'; render();
+  fetch(PLAN_URL,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
+  .then(function(r){ if(!r.ok)throw 0; planMeta=body; planAmt=plan; planMsg='✓ 已送出，明天早班可直接照單煮'; render(); })
+  .catch(function(){ planMsg='✕ 送出失敗（連線或權限）'; render(); }); }
+function loadPlan(silent){ if(!silent){planMsg='讀取中…'; render();}
+  fetch(PLAN_URL).then(function(r){ if(!r.ok)throw 0; return r.json(); }).then(function(d){
+    if(d&&d.plan){ planMeta=d; planAmt=d.plan; if(!silent)planMsg='已載入 '+hhmm(d.at)+' 的備量'; }
+    else if(!silent)planMsg='雲端尚無備量';
+    render();
+  }).catch(function(){ if(!silent){planMsg='讀取失敗'; render();} }); }
+
+function setDay(v){ st.day=v; render(); }
+function setSlot(v){ st.slot=v; st.done={}; render(); }
+function go(pg){ st.page=pg; if(pg==='brew')loadPlan(true); render(); }
+function unlock(){ var v=document.getElementById('pwIn').value; if(v===ADMIN_PW){st.unlocked=true;lockMsg='';}else{lockMsg='密碼不對';} render(); }
+function bumpPot(id,dir){ var v=(st.pot[id]||0)+dir*0.5; if(v<0)v=0; st.pot[id]=Math.round(v*10)/10; render(); }
+function setPot(id,val){ var v=parseFloat(val); st.pot[id]=(isNaN(v)||v<0)?0:Math.round(v*10)/10; render(); }
+function bumpCup(id,dir){ var v=(st.cup[id]||0)+dir; if(v<0)v=0; st.cup[id]=v; render(); }
+function setCup(id,val){ var v=parseInt(val,10); st.cup[id]=(isNaN(v)||v<0)?0:v; render(); }
+function bumpTot(id,k,dir){ var v=tot[id][k]+dir; if(v<0)v=0; tot[id][k]=Math.round(v*2)/2; saveMsg=''; render(); }
+function bumpSeal(id,dir){ var v=sealOv[id]+dir; if(v<0)v=0; sealOv[id]=v; saveMsg=''; render(); }
+function bumpSeg(id,i,dir){ var v=segOv[id][i]+dir; if(v<0)v=0; segOv[id][i]=v; saveMsg=''; render(); }
+
+function cloudHTML(){ return '<div class="cloud '+cloud+'"><span class="cd"></span>'+(cloud==='online'?'雲端已連線':cloud==='offline'?'雲端未連線':'連線中')+'</div>'; }
+
+/* ── 頁面 ── */
+function pageBrew(){
+  var have = !!planAmt;
+  var h='<div class="head"><div class="title"><span class="leaf"></span>今日煮茶</div>'+cloudHTML()+'</div>';
+  var t0=dateInfo(0);
+  h+='<div class="sub">'+t0.m+'/'+t0.day+'（週'+t0.wd+'）'+(planMeta?'　・依 '+hhmm(planMeta.at)+(planMeta.dlabel?'（'+planMeta.dlabel+'）':'')+' 備量':'')+'</div>';
+  if(!have){
+    h+='<div class="empty">尚無備量資料。<br>請前一天收班時，到下方「備量」頁填寫並送出，<br>隔天這裡就會出現要煮的清單。<br><br><button class="ghost" onclick="loadPlan(false)">重新讀取雲端</button></div>';
+    return h;
+  }
+  h+='<div class="slotseg"><button class="'+(st.slot==='open'?'on':'')+'" onclick="setSlot(\'open\')">開店前煮</button><button class="'+(st.slot==='off'?'on':'')+'" onclick="setSlot(\'off\')">10–12 煮</button></div>';
+  h+='<div class="slothint">'+(st.slot==='open'?'這次先煮<b>早上</b>要用的量。':'這次煮<b>10–12 ＋ 中午</b>剩下的量。')+'</div>';
+  var amt=slotAmt();
+  var bases=BASES.map(function(b){ return {b:b, r:recipe(b,amt)}; });
+  var todo=bases.filter(function(x){ return x.r.brew>0; });
+  var doneN=todo.filter(function(x){ return st.done[x.b.id]; }).length;
+  var brewingN=todo.filter(function(x){ return timers[x.b.id]; }).length;
+  if(todo.length===0){
+    h+='<div class="glance done"><div class="label">這次（'+(st.slot==='open'?'開店前':'10–12')+'）</div><div class="big"><span class="chk"></span><span class="n mono">免煮</span></div><div class="line">這個時段不需煮茶。</div></div>';
+    return h;
+  }
+  h+='<div class="glance"><div class="label">這次（'+(st.slot==='open'?'開店前':'10–12')+'）要煮</div><div class="big"><span class="n mono">'+todo.length+'</span><span class="u">種</span></div><div class="line">悶煮中 '+brewingN+'　・已完成 '+doneN+' / '+todo.length+'</div></div>';
+  bases.forEach(function(x){ if(x.r.brew>0) h+=brewCard(x.b,x.r); });
+  return h;
+}
+function brewCard(b,r){
+  var done=st.done[b.id], t=timers[b.id];
+  var note=b.note?'<span class="bnote">'+b.note+'</span>':'';
+  var split=b.single?'':'<div class="split">半糖 '+fmt(r.half)+'L ＋ 無糖 '+fmt(r.none)+'L</div>';
+  var ing=r.ing.map(function(x){ return '<span>'+x.n+' <b>'+x.g+'</b>g</span>'; }).join('');
+  var sugar=r.sugarG>0?'<span class="sugar">'+(b.single?'糖':'半糖加糖')+' <b>'+r.sugarG+'</b>g</span>':'';
+  var tline;
+  if(done){ tline='<div class="tline"><span class="tphase done">✓ 完成</span><button class="tbtn redo" onclick="redo(\''+b.id+'\')">重煮</button></div>'; }
+  else if(t){ var pn=t.phase==='steep'?'悶茶中':'醒茶中';
+    tline='<div class="tline"><span class="tphase '+(t.phase==='rest'?'rest':'')+'">'+pn+'</span><span class="tdisp" id="tmr-'+b.id+'">'+mmss(t.remain)+'</span><button class="tbtn stop" onclick="stopTimer(\''+b.id+'\')">停止</button></div>'; }
+  else { tline='<div class="tline"><span class="tinfo">悶 '+b.steep+' 分 → 醒 '+b.rest+' 分</span><button class="tbtn" onclick="startTimer(\''+b.id+'\')">開始計時</button></div>'; }
+  return '<div class="brew '+(done?'done':'')+'"><div class="bh"><span class="bname">'+b.name+'</span>'+note+
+    '<span class="bvol">'+r.brew+'<small> 公升</small></span></div>'+split+
+    '<div class="ing">'+ing+sugar+'</div>'+tline+'</div>';
+}
+
+function pagePlan(){
+  var h='<div class="head"><div class="title"><span class="leaf"></span>收班備量</div>'+cloudHTML()+'</div>';
+  var t1=dateInfo(1);
+  h+='<div class="sub">填明天要備的量，送出給明天早班</div>';
+  h+='<div class="daybar"><span>備明天</span><span class="d">'+t1.m+'/'+t1.day+'（週'+t1.wd+'）</span>'+
+     '<div class="mini"><button class="'+(st.day==='weekday'?'on':'')+'" onclick="setDay(\'weekday\')">平日</button><button class="'+(st.day==='weekend'?'on':'')+'" onclick="setDay(\'weekend\')">假日</button></div></div>';
+  var totDue=0; TEAS.forEach(function(t){ totDue+=itemDue(t,st.day); });
+  h+='<div class="glance"><div class="label">明天共需煮</div><div class="big"><span class="n mono">'+fmt(totDue)+'</span><span class="u">公升</span></div><div class="line">填完按下方送出，明早照單煮、不用再盤點</div></div>';
+  var lastG='';
+  TEAS.forEach(function(t){
+    if(t.group!==lastG){ var bb=BASES.filter(function(x){return x.note&&(x.half===t.id||x.none===t.id||x.single===t.id);})[0];
+      h+='<div class="sect"><span class="dot"></span>'+t.group+(bb&&bb.note?'<span class="badge">'+bb.note+'</span>':'')+'</div>'; lastG=t.group; }
+    h+=planCard(t);
+  });
+  h+='<button class="bigbtn" onclick="submitPlan()">送出今晚備量</button>';
+  h+='<button class="ghost" onclick="loadPlan(false)">載入最新備量（老闆遠端查看）</button>';
+  if(planMsg) h+='<div class="msg" style="color:'+(planMsg.indexOf('✕')>=0||planMsg.indexOf('失敗')>=0?'var(--danger)':'var(--ok)')+'">'+planMsg+'</div>';
+  return h;
+}
+function planCard(t){
+  var due=itemDue(t,st.day), ok=due<=0, target=dayTotal(t,st.day);
+  var res=ok?'<div class="res">已足・免煮</div>':'<div class="resn">'+fmt(due)+' L</div>';
+  var potRow='<div class="step"><span class="lab">'+(t.hasCup?'壺裝剩量':'目前剩量')+'</span><div class="ctrl"><button onclick="bumpPot(\''+t.id+'\',-1)">−</button><input class="val mono" inputmode="decimal" value="'+fmt(st.pot[t.id])+'" onchange="setPot(\''+t.id+'\',this.value)" onfocus="this.select()"><button onclick="bumpPot(\''+t.id+'\',1)">+</button><span class="vu">壺</span></div></div>';
+  var cupRow=t.hasCup?'<div class="step"><span class="lab">封杯剩量</span><div class="ctrl"><button onclick="bumpCup(\''+t.id+'\',-1)">−</button><input class="val mono" inputmode="numeric" value="'+st.cup[t.id]+'" onchange="setCup(\''+t.id+'\',this.value)" onfocus="this.select()"><button onclick="bumpCup(\''+t.id+'\',1)">+</button><span class="vu">杯</span></div></div>':'';
+  var sealNote=(t.hasCup&&sealOv[t.id]>0)?'<div class="ing" style="margin-top:10px"><span class="cup">打烊前先封 <b>'+sealOv[t.id]+'</b> 杯給明早</span></div>':'';
+  return '<div class="card '+(ok?'ok':'')+'"><div class="top"><span class="sdot"></span><div><div class="name">'+t.name+'</div><div class="meta">明日需 <b>'+fmt(target)+'</b> 公升・1壺＝'+t.potCc+'cc</div></div><div class="right">'+res+'</div></div>'+potRow+cupRow+sealNote+'</div>';
+}
+
+function pageSet(){
+  var h='<div class="head"><div class="title"><span class="leaf"></span>設定</div>'+cloudHTML()+'</div>';
+  h+='<div class="sub">老闆解鎖後可改各茶全日總量與封杯數，存雲端後所有裝置同步</div>';
+  if(!st.unlocked){
+    var lastG='';
+    TEAS.forEach(function(t){ if(t.group!==lastG){ h+='<div class="sect"><span class="dot"></span>'+t.group+'</div>'; lastG=t.group; }
+      h+='<div class="srow"><div class="an">'+t.name+'</div><div class="meta" style="font-size:11px;color:var(--ink3);font-family:\'DM Mono\',monospace">平日 '+fmt(tot[t.id].wk)+'L ／ 假日 '+fmt(tot[t.id].wkd)+'L　・權重 '+segOv[t.id].join('/')+(t.hasCup?'　・封杯 '+sealOv[t.id]+'杯':'')+'</div></div>'; });
+    h+='<div class="lockbox" style="margin-top:14px"><input id="pwIn" type="password" placeholder="輸入老闆密碼以調整" autocomplete="off"><button onclick="unlock()">解鎖</button></div>';
+    if(lockMsg) h+='<div class="msg" style="color:var(--danger)">'+lockMsg+'</div>';
+  } else {
+    var lastG='';
+    TEAS.forEach(function(t){ if(t.group!==lastG){ h+='<div class="sect"><span class="dot"></span>'+t.group+'</div>'; lastG=t.group; }
+      var cup=t.hasCup?'<div class="sfield cup"><span class="sl">封杯(杯)</span><button onclick="bumpSeal(\''+t.id+'\',-1)">−</button><span class="sv">'+sealOv[t.id]+'</span><button onclick="bumpSeal(\''+t.id+'\',1)">+</button></div>':'';
+      var g=segOv[t.id];
+      var wts='<div class="sfields" style="margin-top:7px">'+
+        '<div class="sfield"><span class="sl">早上</span><button onclick="bumpSeg(\''+t.id+'\',0,-1)">−</button><span class="sv">'+g[0]+'</span><button onclick="bumpSeg(\''+t.id+'\',0,1)">+</button></div>'+
+        '<div class="sfield"><span class="sl">10–12</span><button onclick="bumpSeg(\''+t.id+'\',1,-1)">−</button><span class="sv">'+g[1]+'</span><button onclick="bumpSeg(\''+t.id+'\',1,1)">+</button></div>'+
+        '<div class="sfield"><span class="sl">中午</span><button onclick="bumpSeg(\''+t.id+'\',2,-1)">−</button><span class="sv">'+g[2]+'</span><button onclick="bumpSeg(\''+t.id+'\',2,1)">+</button></div></div>';
+      h+='<div class="srow"><div class="an">'+t.name+'</div><div class="sfields">'+
+        '<div class="sfield"><span class="sl">平日(L)</span><button onclick="bumpTot(\''+t.id+'\',\'wk\',-1)">−</button><span class="sv">'+fmt(tot[t.id].wk)+'</span><button onclick="bumpTot(\''+t.id+'\',\'wk\',1)">+</button></div>'+
+        '<div class="sfield"><span class="sl">假日(L)</span><button onclick="bumpTot(\''+t.id+'\',\'wkd\',-1)">−</button><span class="sv">'+fmt(tot[t.id].wkd)+'</span><button onclick="bumpTot(\''+t.id+'\',\'wkd\',1)">+</button></div>'+
+        cup+'</div>'+wts+'</div>'; });
+    h+='<button class="bigbtn" onclick="saveConfig()">儲存到雲端</button>';
+    if(saveMsg) h+='<div class="msg" style="color:'+(saveOk?'var(--ok)':'var(--danger)')+'">'+saveMsg+'</div>';
+  }
+  h+='<div class="note">時段權重（早／10–12／中午）決定當天該煮量怎麼分到兩次煮茶：開店前煮「早上」那份、10–12 煮「10–12＋中午」那份。<br>配方比例（每公升）：紅茶 茶葉20g・半糖糖71g｜濃茶 茶葉32.5g・半糖糖70g｜奶茶 經典6g・PA20.5g・奶精120g・糖49g。悶/醒：紅茶濃茶 10/10 分、奶茶 20/10 分。</div>';
+  return h;
+}
+
+function render(){
+  document.querySelectorAll('#nav button').forEach(function(b){ b.classList.toggle('on', b.dataset.pg===st.page); });
+  var html = st.page==='brew'?pageBrew() : st.page==='plan'?pagePlan() : pageSet();
+  document.getElementById('content').innerHTML=html;
+}
+document.querySelectorAll('#nav button').forEach(function(b){ b.addEventListener('click',function(){ go(b.dataset.pg); }); });
+
+/* 預設頁：傍晚→備量，其餘→煮茶；預設時段依時間 */
+st.slot = (new Date().getHours()<10) ? 'open' : 'off';
+st.page = (new Date().getHours()>=17) ? 'plan' : 'brew';
+render(); loadConfig(); loadPlan(true);
+</script>
+</body>
+</html>
