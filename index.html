@@ -38,7 +38,8 @@ html,body{background:var(--cream);color:var(--ink);font-family:"Noto Sans TC",sa
 .hrow .htn .cd{width:7px;height:7px;border-radius:50%;background:var(--accent);flex:none}
 .hrow.off .htn .cd{background:var(--neutral)}
 .hrow .hpot{display:flex;align-items:center;gap:9px;margin-top:7px}
-.hrow .hpot .pb{font-size:11px;font-weight:700;color:var(--accent);background:var(--accent-soft);border-radius:8px;padding:3px 9px;flex:none}
+.hrow .hpot .pb{font-size:11px;font-weight:700;color:var(--accent);background:var(--accent-soft);border-radius:8px;padding:3px 9px 3px 7px;flex:none;display:inline-flex;align-items:center}
+.hrow .hpot .pb .ic{width:13px;height:13px;margin-right:3px;vertical-align:0}
 .hrow .hpot .pvol{font-size:15px;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums}
 .hrow .hpot .pnone{font-size:12.5px;font-weight:600;color:var(--warn);background:var(--warn-soft);border-radius:8px;padding:3px 9px}
 .hrow .hpot.single{margin-top:6px}
@@ -71,7 +72,8 @@ html,body{background:var(--cream);color:var(--ink);font-family:"Noto Sans TC",sa
 .brew{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:15px 16px;box-shadow:0 1px 3px rgba(43,40,36,.07);margin-bottom:11px}
 .brew .bh{display:flex;align-items:baseline;gap:8px}
 .brew .bname{font-size:17px;font-weight:700}
-.brew .bpot{font-size:11px;color:var(--accent);background:var(--accent-soft);border-radius:9px;padding:2px 8px;font-weight:600}
+.brew .bpot{font-size:11px;color:var(--accent);background:var(--accent-soft);border-radius:9px;padding:2px 8px 2px 6px;font-weight:600;display:inline-flex;align-items:center}
+.brew .bpot .ic{width:13px;height:13px;margin-right:3px;vertical-align:0}
 .brew .bvol{margin-left:auto;font-family:"Noto Sans TC",monospace;font-size:22px;font-weight:500;color:var(--accent)} .brew .bvol small{font-size:12px;color:var(--ink3)}
 .brew .bsplit{font-size:14px;color:var(--ink);font-weight:600;margin-top:9px}
 .brew .bsplit .sn{color:var(--warn);font-weight:700} .brew .bsplit .sh{color:var(--accent);font-weight:700}
@@ -80,15 +82,28 @@ html,body{background:var(--cream);color:var(--ink);font-family:"Noto Sans TC",sa
 .brew .rr + .rr{border-top:1px solid var(--border)}
 .brew .rr .rv{font-size:12px;font-weight:600;color:var(--ink2);background:var(--tint);border-radius:7px;padding:3px 8px;flex:none;font-variant-numeric:tabular-nums}
 .brew .rr .rv.sugar{background:var(--warn-soft);color:var(--warn)}
-.brew .rr .rn{font-size:13.5px;font-weight:600;color:var(--ink)}
+.brew .rr .rn{font-size:13.5px;font-weight:600;color:var(--ink);display:inline-flex;align-items:center}
+.brew .rr .rn .ic{color:var(--ink2)}
 .brew .rr .rg{margin-left:auto;font-size:18px;font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums} .brew .rr .rg small{font-size:12px;color:var(--ink3);font-weight:500;margin-left:1px}
 .brew .rr .rg.sugar{color:var(--warn)}
-.brew .timers{display:flex;gap:8px;margin-top:13px;padding-top:12px;border-top:1px solid var(--border)}
-.tbtn{flex:1;border:1px solid var(--border);background:var(--surface);color:var(--ink);font-family:inherit;font-size:13px;font-weight:600;padding:11px 0;border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px}
-.tbtn .tm{font-family:"Noto Sans TC",monospace;font-size:15px}
-.tbtn.run{background:var(--accent);color:#fff;border-color:var(--accent)}
-.tbtn.rest.run{background:var(--warn);border-color:var(--warn)}
-.tbtn.done{background:var(--ok-soft);color:var(--ok);border-color:#CFE0CF}
+.ic{width:15px;height:15px;flex:none;vertical-align:-2px;margin-right:5px}
+.roundseg{display:flex;background:var(--tint);border-radius:12px;padding:3px;margin-bottom:7px}
+.roundseg button{flex:1;border:0;background:transparent;color:var(--ink2);font-family:inherit;font-size:14px;font-weight:600;padding:10px 0;border-radius:10px;cursor:pointer;line-height:1.25}
+.roundseg button small{display:block;font-size:10.5px;font-weight:500;color:var(--ink3);margin-top:2px}
+.roundseg button.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(43,40,36,.12)} .roundseg button.on small{color:var(--accent)}
+.roundhint{font-size:11.5px;color:var(--ink3);margin:0 2px 13px;display:flex;align-items:center}
+.roundhint .ic{color:var(--accent)}
+.brew .timers{display:flex;gap:10px;margin-top:13px;padding-top:13px;border-top:1px solid var(--border)}
+.phase{flex:1;display:flex;flex-direction:column;gap:7px}
+.pbtn{display:flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--border);background:var(--surface);color:var(--ink);font-family:inherit;font-size:14px;font-weight:600;padding:11px 0;border-radius:10px;cursor:pointer}
+.pbtn.done{background:var(--ok-soft);border-color:#CFE0CF;color:var(--ok)}
+.ck{width:18px;height:18px;border:1.6px solid var(--ink3);border-radius:5px;display:inline-flex;align-items:center;justify-content:center;flex:none;box-sizing:border-box}
+.pbtn.done .ck{border-color:var(--ok);background:var(--ok)}
+.ck i{width:4px;height:9px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg);margin-top:-2px;display:block}
+.tmbtn{border:1px solid var(--border);background:var(--surface);color:var(--ink2);font-family:inherit;font-size:13px;font-weight:600;padding:9px 0;border-radius:9px;cursor:pointer}
+.tmbtn.run{background:var(--accent);color:#fff;border-color:var(--accent)}
+.tmbtn.run.rest{background:var(--warn);border-color:var(--warn)}
+.tmbtn .tm{font-variant-numeric:tabular-nums;font-size:15px}
 .bigbtn{width:100%;margin-top:18px;background:var(--ink);border:0;color:#fff;font-family:inherit;font-size:15px;font-weight:600;padding:15px 0;border-radius:12px;cursor:pointer}
 .ghost{width:100%;margin-top:10px;background:var(--surface);border:1px solid var(--border);color:var(--ink2);font-family:inherit;font-size:13px;font-weight:600;padding:12px 0;border-radius:11px;cursor:pointer}
 .msg{font-size:12px;font-weight:600;text-align:center;margin-top:10px}
@@ -137,9 +152,17 @@ var MAX_BUCKET=14000;   // 桶子上限(ml)，超過自動分鍋
 var DB='https://jenka-inventory-default-rtdb.asia-southeast1.firebasedatabase.app';
 var CFG_URL=DB+'/jenkaTea/config.json', PLAN_URL=DB+'/jenkaTea/plan.json', ADMIN_PW='jenka@kaka';
 
-var st={page:'brew', ctx:'tomorrow', day:'weekday', pot:{}, cup:{}, unlocked:false};
+var st={page:'brew', ctx:'tomorrow', day:'weekday', round:0, pot:{}, cup:{}, unlocked:false};
 var tot={}, sealOv={}, segOv={}, cloud='connecting', planMeta=null, planAmt=null, planMsg='', saveMsg='', saveOk=true, lockMsg='';
-var timers={};
+var timers={}, phaseDone={};
+/* 線條風圖示（stroke=currentColor，跟著文字顏色，極簡不搶風格） */
+var IC={
+  leaf:'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 19C5 11 11 5 19 5c0 8-6 14-14 14Z"/><path d="M5 19 13 11"/></svg>',
+  cup:'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6h12l-1.4 12.2A2 2 0 0 1 14.6 20H9.4a2 2 0 0 1-2-1.8Z"/><path d="M7 11h10"/></svg>',
+  cube:'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="12" height="12" rx="2.5"/><path d="M9.5 10.5h5M9.5 13.5h3"/></svg>',
+  bucket:'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h14l-1.4 10.2A1 1 0 0 1 16.6 19H7.4a1 1 0 0 1-1-.8Z"/><path d="M4 8h16"/><path d="M8.5 5.2a3.7 3.7 0 0 1 7 0"/></svg>'
+};
+function matIcon(n){ if(n.indexOf('茶葉')>=0)return IC.leaf; if(n.indexOf('奶精')>=0)return IC.cup; if(n.indexOf('糖')>=0)return IC.cube; return ''; }
 TEAS.forEach(function(t){ st.pot[t.id]=0; st.cup[t.id]=0; tot[t.id]={wk:t.wk,wkd:t.wkd}; sealOv[t.id]=t.seal; segOv[t.id]=t.seg.slice(); });
 function byId(id){ return TEAS.find(function(x){return x.id===id;}); }
 
@@ -196,10 +219,11 @@ function beep(){ try{ var a=new (window.AudioContext||window.webkitAudioContext)
 function tkey(card,phase){ return card+':'+phase; }
 function elid(k){ return 'tm-'+k.replace(':','-'); }
 function paintT(k){ var t=timers[k], el=document.getElementById(elid(k)); if(el&&t) el.textContent=mmss(t.remain); }
-function tickT(k){ var t=timers[k]; if(!t)return; t.remain--; if(t.remain<=0){ beep(); clearInterval(t.iv); t.iv=null; t.done=true; render(); } else paintT(k); }
+function tickT(k){ var t=timers[k]; if(!t)return; t.remain--; if(t.remain<=0){ beep(); clearInterval(t.iv); delete timers[k]; phaseDone[k]=true; render(); } else paintT(k); }
 function startT(card,phase,mins){ var k=tkey(card,phase); if(timers[k]&&timers[k].iv)clearInterval(timers[k].iv);
-  timers[k]={remain:mins*60,done:false,iv:null}; timers[k].iv=setInterval(function(){tickT(k);},1000); beep(); render(); }
+  phaseDone[k]=false; timers[k]={remain:mins*60,iv:null}; timers[k].iv=setInterval(function(){tickT(k);},1000); beep(); render(); }
 function stopT(k){ if(timers[k]){ if(timers[k].iv)clearInterval(timers[k].iv); delete timers[k]; } render(); }
+function toggleDone(k){ phaseDone[k]=!phaseDone[k]; render(); }
 
 /* ── 雲端 ── */
 function loadConfig(){ cloud='connecting'; render();
@@ -250,19 +274,26 @@ function pageBrew(){
   var t0=dateInfo(0);
   h+='<div class="sub">'+t0.m+'/'+t0.day+'（週'+t0.wd+'）'+(planMeta?'　・依 '+hhmm(planMeta.at)+'（'+(planMeta.ctx==='today'?'補今天':'備明天')+'）':'')+'</div>';
   if(!planAmt){ h+='<div class="empty">尚無要煮的資料。<br>請到「盤點算量」盤點並送出，這裡就會列出要煮什麼。<br><br><button class="ghost" onclick="loadPlan(false)">重新讀取雲端</button></div>'; return h; }
-  var any=false;
-  BASES.forEach(function(b){
-    var batches=brewBatches(b, planAmt);
-    if(batches.length===0) return;
-    any=true;
-    batches.forEach(function(bt){ h+=brewCard(b,bt); });
-  });
-  if(!any) h+='<div class="empty">這次不需煮茶（量都已足）。</div>';
+  var perBase=[];
+  BASES.forEach(function(b){ var bs=brewBatches(b, planAmt); if(bs.length) perBase.push({b:b, batches:bs}); });
+  if(perBase.length===0){ h+='<div class="empty">這次不需煮茶（量都已足）。</div>'; return h; }
+  var maxR=0; perBase.forEach(function(x){ if(x.batches.length>maxR)maxR=x.batches.length; });
+  if(st.round>=maxR) st.round=0;
+  if(maxR>1){
+    h+='<div class="roundseg">';
+    for(var r=0;r<maxR;r++){ var cnt=perBase.filter(function(x){return x.batches[r];}).length;
+      h+='<button class="'+(st.round===r?'on':'')+'" onclick="setRound('+r+')">第 '+(r+1)+' 鍋<small>'+cnt+' 種</small></button>'; }
+    h+='</div><div class="roundhint">'+IC.bucket+'先把「第 1 鍋」三種都煮完，再切到下一鍋回頭煮。</div>';
+  }
+  var shown=0;
+  perBase.forEach(function(x){ var bt=x.batches[st.round]; if(bt){ h+=brewCard(x.b, bt); shown++; } });
+  if(shown===0) h+='<div class="empty">這一鍋沒有要煮的。</div>';
   return h;
 }
+function setRound(r){ st.round=r; render(); }
 function brewCard(b,bt){
   var card=b.id+'_'+bt.idx;
-  var pot=bt.n>1?'<span class="bpot">第 '+(bt.idx+1)+' 鍋／共 '+bt.n+' 鍋</span>':'';
+  var pot=bt.n>1?'<span class="bpot">'+IC.bucket+'共 '+bt.n+' 鍋</span>':'';
   /* 分糖：凸顯 */
   var split='';
   if(!b.single && bt.none>0){
@@ -270,19 +301,22 @@ function brewCard(b,bt){
   } else if(!b.single){
     split='<div class="bsplit">全鍋 <span class="sh">半糖 '+num(bt.half)+'</span> ml</div>';
   }
-  /* 配方：每列前面標清楚是「幾 ml 的比例」 */
+  /* 配方：每列前面標清楚是「幾 ml 的比例」，材料前加線條圖示 */
   var rows='';
-  bt.ing.forEach(function(x){ rows+='<div class="rr"><span class="rv">整鍋 '+num(bt.vol)+' ml</span><span class="rn">'+x.n+'</span><span class="rg">'+x.g+'<small>g</small></span></div>'; });
-  if(bt.sugarG>0){ var sbase=b.single?bt.vol:bt.half; rows+='<div class="rr"><span class="rv sugar">'+(b.single?'整鍋 ':'半糖 ')+num(sbase)+' ml</span><span class="rn">加糖</span><span class="rg sugar">'+bt.sugarG+'<small>g</small></span></div>'; }
+  bt.ing.forEach(function(x){ rows+='<div class="rr"><span class="rv">整鍋 '+num(bt.vol)+' ml</span><span class="rn">'+matIcon(x.n)+x.n+'</span><span class="rg">'+x.g+'<small>g</small></span></div>'; });
+  if(bt.sugarG>0){ var sbase=b.single?bt.vol:bt.half; rows+='<div class="rr"><span class="rv sugar">'+(b.single?'整鍋 ':'半糖 ')+num(sbase)+' ml</span><span class="rn">'+IC.cube+'加糖</span><span class="rg sugar">'+bt.sugarG+'<small>g</small></span></div>'; }
   return '<div class="brew"><div class="bh"><span class="bname">'+b.name+'</span>'+pot+'<span class="bvol">'+num(bt.vol)+'<small> ml</small></span></div>'+split+
     '<div class="recipe">'+rows+'</div>'+
-    '<div class="timers">'+timerBtn(card,'steep',b.steep,'悶茶')+timerBtn(card,'rest',b.rest,'醒茶')+'</div></div>';
+    '<div class="timers">'+phaseCtl(card,'steep',b.steep,'悶茶')+phaseCtl(card,'rest',b.rest,'醒茶')+'</div></div>';
 }
-function timerBtn(card,phase,mins,label){
-  var k=tkey(card,phase), t=timers[k];
-  if(t&&t.done) return '<button class="tbtn done" onclick="stopT(\''+k+'\')">'+label+' ✓</button>';
-  if(t) return '<button class="tbtn run '+phase+'" onclick="stopT(\''+k+'\')">'+label+' <span class="tm" id="'+elid(k)+'">'+mmss(t.remain)+'</span></button>';
-  return '<button class="tbtn '+phase+'" onclick="startT(\''+card+'\',\''+phase+'\','+mins+')">'+label+' '+mins+'分</button>';
+function phaseCtl(card,phase,mins,label){
+  var k=tkey(card,phase), t=timers[k], done=!!phaseDone[k];
+  var chk='<span class="ck'+(done?' on':'')+'">'+(done?'<i></i>':'')+'</span>';
+  var doneBtn='<button class="pbtn'+(done?' done':'')+'" onclick="toggleDone(\''+k+'\')">'+chk+label+'</button>';
+  var tim;
+  if(t) tim='<button class="tmbtn run '+phase+'" onclick="stopT(\''+k+'\')">⏱ <span class="tm" id="'+elid(k)+'">'+mmss(t.remain)+'</span></button>';
+  else tim='<button class="tmbtn '+phase+'" onclick="startT(\''+card+'\',\''+phase+'\','+mins+')">⏱ '+mins+'分</button>';
+  return '<div class="phase">'+doneBtn+tim+'</div>';
 }
 
 /* ── 盤點算量頁（情境：備明天／補今天） ── */
@@ -303,7 +337,7 @@ function pagePlan(){
     var sub='';
     if(d.batches.length>1){
       d.batches.forEach(function(bt,i){
-        sub+='<div class="hpot"><span class="pb">鍋'+(i+1)+'</span><span class="pvol">'+num(bt.vol)+'</span>'+(bt.none>0?'<span class="pnone">含無糖 '+num(bt.none)+'</span>':'')+'</div>';
+        sub+='<div class="hpot"><span class="pb">'+IC.bucket+'鍋'+(i+1)+'</span><span class="pvol">'+num(bt.vol)+'</span>'+(bt.none>0?'<span class="pnone">含無糖 '+num(bt.none)+'</span>':'')+'</div>';
       });
     } else if(d.none>0){
       sub='<div class="hpot single"><span class="pnone">含無糖 '+num(d.none)+'</span></div>';
