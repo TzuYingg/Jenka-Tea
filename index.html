@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>庄腳・煮茶</title>
+<title>庄腳・煮茶｜JenKa Tea</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -191,6 +191,7 @@ html,body{background:var(--cream);color:var(--ink);font-family:"Noto Sans TC",sa
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="application-name" content="JenKa Tea">
 <meta name="apple-mobile-web-app-title" content="庄腳煮茶">
 <meta name="theme-color" content="#2E6E64">
 </head>
@@ -302,12 +303,17 @@ function hhmm(ts){ var d=new Date(ts); return ('0'+d.getHours()).slice(-2)+':'+(
 function mmss(s){ s=Math.max(0,s); return Math.floor(s/60)+':'+('0'+(s%60)).slice(-2); }
 
 /* ── 計時：每鍋兩顆獨立按鈕（悶/醒），互不影響 ── */
-var actx=null, alarmIv=null;
+var actx=null, alarmIv=null, alarmOn=false;
 function ensureAudio(){ try{ if(!actx) actx=new (window.AudioContext||window.webkitAudioContext)(); if(actx.state==='suspended') actx.resume(); }catch(e){} return actx; }
 function ding(freq,len){ var a=actx; if(!a)return; var t=a.currentTime; var o=a.createOscillator(),g=a.createGain(); o.connect(g); g.connect(a.destination); o.type='sine'; o.frequency.setValueAtTime(freq||1000,t); g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.6,t+0.01); g.gain.exponentialRampToValueAtTime(0.0001,t+(len||0.18)); o.start(t); o.stop(t+(len||0.18)+0.02); }
+/* 鈴聲 13「完成上行」：四音上行的脆亮琴音 */
+function tnAt(start,freq,dur,type,peak){ var a=actx; if(!a)return; var o=a.createOscillator(),g=a.createGain(); o.type=type||'sine'; o.frequency.setValueAtTime(freq,start); o.connect(g); g.connect(a.destination); g.gain.setValueAtTime(0.0001,start); g.gain.exponentialRampToValueAtTime(peak||0.45,start+0.008); g.gain.exponentialRampToValueAtTime(0.0001,start+dur); o.start(start); o.stop(start+dur+0.03); }
+function pluck(start,f,dur,peak){ tnAt(start,f,dur,'triangle',peak||0.45); tnAt(start,f*2,dur*0.7,'sine',(peak||0.45)*0.18); }
+function chimeUp(){ var a=actx; if(!a)return; var t=a.currentTime+0.02; pluck(t,523.25,0.3); pluck(t+0.11,659.25,0.3); pluck(t+0.22,783.99,0.3); pluck(t+0.34,1046.5,0.5); }
 function beep(){ ensureAudio(); ding(880,0.18); }
-function alarm(){ ensureAudio(); if(!actx)return; stopAlarm(); var n=0; ding(1046,0.16); alarmIv=setInterval(function(){ n++; ding(1046,0.16); if(n>=24){ stopAlarm(); } },450); }
-function stopAlarm(){ if(alarmIv){ clearInterval(alarmIv); alarmIv=null; } }
+/* 計時結束：旋律重複響起，直到按下「悶茶／醒茶」才停（n>=63 約 88 秒為安全上限，避免無人時一直響） */
+function alarm(){ ensureAudio(); if(!actx)return; stopAlarm(); alarmOn=true; chimeUp(); var n=0; alarmIv=setInterval(function(){ n++; chimeUp(); if(n>=63){ stopAlarm(); } },1400); }
+function stopAlarm(){ if(alarmIv){ clearInterval(alarmIv); alarmIv=null; } alarmOn=false; }
 function tkey(card,phase){ return card+':'+phase; }
 function elid(k){ return 'tm-'+k.replace(':','-'); }
 function paintT(k){ var t=timers[k], el=document.getElementById(elid(k)); if(el&&t) el.textContent=mmss(t.remain); }
@@ -315,7 +321,7 @@ function tickT(k){ var t=timers[k]; if(!t)return; t.remain--; if(t.remain<=0){ c
 function startT(card,phase,mins){ stopAlarm(); var k=tkey(card,phase); if(timers[k]&&timers[k].iv)clearInterval(timers[k].iv);
   phaseDone[k]=false; timers[k]={remain:mins*60,iv:null}; timers[k].iv=setInterval(function(){tickT(k);},1000); beep(); render(); }
 function stopT(k){ stopAlarm(); if(timers[k]){ if(timers[k].iv)clearInterval(timers[k].iv); delete timers[k]; } render(); }
-function toggleDone(k){ stopAlarm(); phaseDone[k]=!phaseDone[k]; render(); }
+function toggleDone(k){ if(alarmOn){ stopAlarm(); render(); return; } phaseDone[k]=!phaseDone[k]; render(); }
 
 /* ── 雲端 ── */
 function loadConfig(){ cloud='connecting'; render();
