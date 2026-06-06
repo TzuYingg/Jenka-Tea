@@ -165,10 +165,10 @@ var BASES=[
 ];
 var MAX_BUCKET=14000;   // 桶子上限(ml)，超過自動分鍋
 var DB='https://jenka-inventory-default-rtdb.asia-southeast1.firebasedatabase.app';
-var CFG_URL=DB+'/jenkaTea/config.json', PLAN_URL=DB+'/jenkaTea/plan.json', ADMIN_PW='jenka@kaka';
+var CFG_URL=DB+'/jenkaTea/config.json', PLAN_NEXT_URL=DB+'/jenkaTea/planNext.json', PLAN_TODAY_URL=DB+'/jenkaTea/planToday.json', ADMIN_PW='jenka@kaka';
 
-var st={page:'brew', ctx:'tomorrow', day:'weekday', round:0, pot:{}, cup:{}, unlocked:false};
-var tot={}, sealOv={}, segOv={}, cloud='connecting', planMeta=null, planAmt=null, planMsg='', saveMsg='', saveOk=true, lockMsg='';
+var st={page:'brew', ctx:'tomorrow', day:'weekday', round:0, brewKind:'next', pot:{}, cup:{}, unlocked:false};
+var tot={}, sealOv={}, segOv={}, cloud='connecting', plans={next:null, today:null}, planMsg='', saveMsg='', saveOk=true, lockMsg='';
 var timers={}, phaseDone={};
 /* 線條風圖示（stroke=currentColor，跟著文字顏色，極簡不搶風格） */
 var IC={
@@ -260,20 +260,27 @@ function saveConfig(){ var to={}, sl={}, sg={}; TEAS.forEach(function(t){ to[t.i
   fetch(CFG_URL,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({tot:to,seal:sl,seg:sg,updatedAt:Date.now()})})
   .then(function(r){ if(!r.ok)throw 0; cloud='online'; saveMsg='✓ 已存到雲端'; render(); })
   .catch(function(){ saveMsg='✕ 儲存失敗（資料庫權限？）'; saveOk=false; render(); }); }
+function planUrl(kind){ return kind==='next'?PLAN_NEXT_URL:PLAN_TODAY_URL; }
+function kindOf(ctx){ return ctx==='tomorrow'?'next':'today'; }
+function resetTimersFor(kind){ stopAlarm();
+  Object.keys(timers).forEach(function(k){ if(k.indexOf(kind+'_')===0){ if(timers[k].iv)clearInterval(timers[k].iv); delete timers[k]; } });
+  Object.keys(phaseDone).forEach(function(k){ if(k.indexOf(kind+'_')===0) delete phaseDone[k]; }); }
 function submitPlan(){ var plan={}; TEAS.forEach(function(t){ plan[t.id]=itemDue(t); });
-  var body={plan:plan, ctx:st.ctx, day:st.day, dlabel:(st.ctx==='tomorrow'?dateInfo(1):dateInfo(0)).m+'/'+(st.ctx==='tomorrow'?dateInfo(1):dateInfo(0)).day, at:Date.now()};
+  var kind=kindOf(st.ctx), di=(st.ctx==='tomorrow')?dateInfo(1):dateInfo(0);
+  var body={plan:plan, ctx:st.ctx, day:st.day, dlabel:di.m+'/'+di.day, at:Date.now()};
   planMsg='送出中…'; render();
-  fetch(PLAN_URL,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
-  .then(function(r){ if(!r.ok)throw 0; planMeta=body; planAmt=plan; planMsg='✓ 已送出，煮茶頁即可看到'; render(); })
+  fetch(planUrl(kind),{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
+  .then(function(r){ if(!r.ok)throw 0; resetTimersFor(kind); plans[kind]=body; planMsg='✓ 已送出到「'+(kind==='next'?'給明天':'今天補煮')+'」'; render(); })
   .catch(function(){ planMsg='✕ 送出失敗（連線或權限）'; render(); }); }
-function loadPlan(silent){ if(!silent){planMsg='讀取中…'; render();}
-  fetch(PLAN_URL).then(function(r){ if(!r.ok)throw 0; return r.json(); }).then(function(d){
-    if(d&&d.plan){ planMeta=d; planAmt=d.plan; if(!silent)planMsg='已載入 '+hhmm(d.at); }
-    else if(!silent)planMsg='雲端尚無資料';
-    render();
-  }).catch(function(){ if(!silent){planMsg='讀取失敗'; render();} }); }
+function loadPlans(silent){ if(!silent){planMsg='讀取中…'; render();} var done=0, ok=false;
+  ['next','today'].forEach(function(kind){
+    fetch(planUrl(kind)).then(function(r){ return r.ok?r.json():null; }).then(function(d){
+      if(d&&d.plan){ if(!plans[kind] || plans[kind].at!==d.at) resetTimersFor(kind); plans[kind]=d; ok=true; }
+      done++; if(done>=2 && !silent) planMsg = ok?'已載入最新':'雲端尚無資料'; render();
+    }).catch(function(){ done++; if(done>=2 && !silent){ planMsg = ok?'已載入最新':'讀取失敗'; render(); } });
+  }); }
 
-function go(pg){ st.page=pg; if(pg==='brew')loadPlan(true); render(); }
+function go(pg){ st.page=pg; if(pg==='brew')loadPlans(true); render(); }
 function setCtx(c){ st.ctx=c; var di=(c==='tomorrow')?dateInfo(1):dateInfo(0); st.day=di.weekend?'weekend':'weekday'; render(); }
 function setDay(v){ st.day=v; render(); }
 function unlock(){ var v=document.getElementById('pwIn').value; if(v===ADMIN_PW){st.unlocked=true;lockMsg='';}else{lockMsg='密碼不對';} render(); }
@@ -293,11 +300,24 @@ function cloudHTML(){ return '<div class="cloud '+cloud+'"><span class="cd"></sp
 function pageBrew(){
   var h='<div class="head"><div class="title"><span class="leaf"></span>今天煮茶</div></div>';
   var t0=dateInfo(0);
-  var forDay = planMeta ? (planMeta.ctx==='today' ? '今天賣（臨時補煮）' : '給 '+planMeta.dlabel+' 賣（冰鎮）') : '';
-  h+='<div class="sub">'+t0.m+'/'+t0.day+'（週'+t0.wd+'）'+(planMeta?'　・這批 '+forDay+'　・'+hhmm(planMeta.at)+' 送出':'')+'</div>';
-  if(!planAmt){ h+='<div class="empty">尚無要煮的資料。<br>請到「盤點算量」盤點並送出，這裡就會列出要煮什麼。<br><br><button class="ghost" onclick="loadPlan(false)">重新讀取雲端</button></div>'; return h; }
+  var hasNext=!!(plans.next&&plans.next.plan), hasToday=!!(plans.today&&plans.today.plan);
+  if(!hasNext && !hasToday){
+    h+='<div class="sub">'+t0.m+'/'+t0.day+'（週'+t0.wd+'）</div>';
+    h+='<div class="empty">尚無要煮的資料。<br>請到「盤點算量」盤點並送出。<br><br><button class="ghost" onclick="loadPlans(false)">重新讀取雲端</button></div>'; return h;
+  }
+  if(hasNext && hasToday){
+    h+='<div class="ctxseg"><button class="'+(st.brewKind==='next'?'on':'')+'" onclick="setBrewKind(\'next\')">給明天<small>冰鎮・隔天賣</small></button>'+
+       '<button class="'+(st.brewKind==='today'?'on':'')+'" onclick="setBrewKind(\'today\')">今天補煮<small>當天現賣</small></button></div>';
+  }
+  var kind=st.brewKind;
+  if(kind==='next' && !hasNext) kind='today';
+  if(kind==='today' && !hasToday) kind='next';
+  st.brewKind=kind;
+  var p=plans[kind];
+  var forDay = (kind==='today') ? '今天現賣（臨時補煮）' : '給 '+p.dlabel+' 賣（冰鎮）';
+  h+='<div class="sub">'+t0.m+'/'+t0.day+'（週'+t0.wd+'）　・這批 '+forDay+'　・'+hhmm(p.at)+' 送出</div>';
   var perBase=[];
-  BASES.forEach(function(b){ var bs=brewBatches(b, planAmt); if(bs.length) perBase.push({b:b, batches:bs}); });
+  BASES.forEach(function(b){ var bs=brewBatches(b, p.plan); if(bs.length) perBase.push({b:b, batches:bs}); });
   if(perBase.length===0){ h+='<div class="empty">這次不需煮茶（量都已足）。</div>'; return h; }
   var maxR=0; perBase.forEach(function(x){ if(x.batches.length>maxR)maxR=x.batches.length; });
   if(st.round>=maxR) st.round=0;
@@ -305,16 +325,17 @@ function pageBrew(){
     h+='<div class="roundseg">';
     for(var r=0;r<maxR;r++){ var cnt=perBase.filter(function(x){return x.batches[r];}).length;
       h+='<button class="'+(st.round===r?'on':'')+'" onclick="setRound('+r+')">第 '+(r+1)+' 鍋<small>'+cnt+' 種</small></button>'; }
-    h+='</div><div class="roundhint">'+IC.bucket+'先把「第 1 鍋」三種煮完（開店前），離峰再切到下一鍋回頭煮。</div>';
+    h+='</div><div class="roundhint">'+IC.bucket+'先把「第 1 鍋」煮完，再切到下一鍋回頭煮。</div>';
   }
   var shown=0;
-  perBase.forEach(function(x){ var bt=x.batches[st.round]; if(bt){ h+=brewCard(x.b, bt); shown++; } });
+  perBase.forEach(function(x){ var bt=x.batches[st.round]; if(bt){ h+=brewCard(kind, x.b, bt); shown++; } });
   if(shown===0) h+='<div class="empty">這一鍋沒有要煮的。</div>';
   return h;
 }
+function setBrewKind(k){ st.brewKind=k; st.round=0; render(); }
 function setRound(r){ st.round=r; render(); }
-function brewCard(b,bt){
-  var card=b.id+'_'+bt.idx;
+function brewCard(kind,b,bt){
+  var card=kind+'_'+b.id+'_'+bt.idx;
   var pot=bt.n>1?'<span class="bpot">'+IC.bucket+'共 '+bt.n+' 鍋</span>':'';
   /* 分糖：凸顯 */
   var split='';
@@ -346,7 +367,7 @@ function pagePlan(){
   var h='<div class="head"><div class="title"><span class="leaf"></span>盤點算量</div></div>';
   h+='<div class="sub">收班時點剩量，算出今天要煮多少（冰鎮後給隔天賣）</div>';
   h+='<div class="ctxseg"><button class="'+(st.ctx==='tomorrow'?'on':'')+'" onclick="setCtx(\'tomorrow\')">煮給明天賣<small>今天煮・冰鎮・隔天賣</small></button>'+
-     '<button class="'+(st.ctx==='today'?'on':'')+'" onclick="setCtx(\'today\')">今天臨時補煮<small>當天不夠才用</small></button></div>';
+     '<button class="'+(st.ctx==='today'?'on':'')+'" onclick="setCtx(\'today\')">今天臨時補煮<small>營業中・離峰才用</small></button></div>';
   var di=(st.ctx==='tomorrow')?dateInfo(1):dateInfo(0);
   h+='<div class="daybar"><span>'+(st.ctx==='tomorrow'?'要賣的那天（明天）':'今天')+'</span><span class="d">'+di.m+'/'+di.day+'（週'+di.wd+'）</span>'+
      '<div class="mini"><button class="'+(st.day==='weekday'?'on':'')+'" onclick="setDay(\'weekday\')">平日</button><button class="'+(st.day==='weekend'?'on':'')+'" onclick="setDay(\'weekend\')">假日</button></div></div>';
@@ -372,7 +393,7 @@ function pagePlan(){
   var lastG='';
   TEAS.forEach(function(t){ if(t.group!==lastG){ h+='<div class="sect"><span class="dot"></span>'+t.group+'</div>'; lastG=t.group; } h+=planCard(t); });
   h+='<button class="bigbtn" onclick="submitPlan()">送出（給煮茶頁）</button>';
-  h+='<button class="ghost" onclick="loadPlan(false)">載入最新（老闆遠端查看）</button>';
+  h+='<button class="ghost" onclick="loadPlans(false)">載入最新（老闆遠端查看）</button>';
   if(planMsg) h+='<div class="msg" style="color:'+(planMsg.indexOf('✕')>=0||planMsg.indexOf('失敗')>=0?'var(--danger)':'var(--ok)')+'">'+planMsg+'</div>';
   return h;
 }
@@ -424,7 +445,7 @@ document.querySelectorAll('#nav button').forEach(function(b){ b.addEventListener
 st.ctx = (new Date().getHours()>=14) ? 'tomorrow' : 'today';
 setCtx(st.ctx);
 st.page = (new Date().getHours()>=17) ? 'plan' : 'brew';
-render(); loadConfig(); loadPlan(true);
+render(); loadConfig(); loadPlans(true);
 </script>
 </body>
 </html>
