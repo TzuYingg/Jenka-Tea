@@ -63,17 +63,45 @@ html,body{background:var(--cream);color:var(--ink);font-family:"Noto Sans TC",sa
 .card .name{font-size:15px;font-weight:600} .card .meta{font-size:11px;color:var(--ink3);margin-top:3px} .card .meta b{color:var(--ink2);font-family:"Noto Sans TC",monospace;font-weight:500}
 .card .right{margin-left:auto;text-align:right;flex:none;padding-left:8px}
 .card .res{font-size:11px;color:var(--ink3);font-weight:600} .card.ok .res{color:var(--ok)}
-.card .resn{font-family:"Noto Sans TC",monospace;font-size:16px;font-weight:500;color:var(--accent)}
+.card .resn{font-family:"Noto Sans TC",sans-serif;font-size:17px;font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums;white-space:nowrap}
+.card .resn small{font-size:11px;color:var(--ink3);font-weight:500;margin-left:1px}
+.card .resn.ok{color:var(--ok)}
+.card .resn.short{color:var(--danger)}
+.card .right .chk{display:inline-flex;width:20px;height:20px;border-radius:50%;background:var(--ok);align-items:center;justify-content:center}
+.card .right .chk i{width:4px;height:8px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg);margin-top:-1px;display:block}
+.card .right .diff{font-size:14px;font-weight:600;color:var(--ink2);font-variant-numeric:tabular-nums;white-space:nowrap}
+.seala{margin-top:11px;font-size:11.5px;color:var(--ink3);display:flex;align-items:center;gap:6px}
+.seala .ic{width:13px;height:13px;flex:none;opacity:.8;margin-right:0}
+.seala b{color:var(--ink2);font-weight:600;font-variant-numeric:tabular-nums}
 .card .ing{display:flex;flex-wrap:wrap;gap:6px}
 .card .ing span.cup{background:var(--accent-soft);color:var(--accent);border-radius:8px;padding:6px 10px;font-size:12px;font-weight:600} .card .ing span.cup b{font-family:"Noto Sans TC",monospace;color:var(--accent);font-weight:500}
-.step{display:flex;align-items:center;gap:10px;margin-top:11px}
-.step .lab{font-size:12px;color:var(--ink2);font-weight:500}
-.step .ctrl{margin-left:auto;display:flex;align-items:center;gap:8px}
-.step button{width:32px;height:32px;border-radius:9px;border:1px solid var(--border);background:var(--surface);color:var(--ink);font-size:19px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:inherit}
-.step button:active{background:var(--tint)}
-.step .val{width:64px;text-align:center;font-family:"Noto Sans TC",monospace;font-size:16px;font-weight:500;color:var(--ink);border:1px solid var(--border);border-radius:9px;background:var(--surface);padding:6px 0}
-.step .val:focus{outline:0;border-color:var(--accent)}
-.step .vu{font-size:12px;color:var(--ink3);min-width:14px}
+.steprow{display:flex;align-items:center;justify-content:flex-start;gap:36px;margin-top:15px;padding-left:2px}
+.sgrp{display:flex;align-items:center;gap:11px}
+.sgrp .slab{font-size:13px;color:var(--ink2);font-weight:600}
+.ctrl{display:inline-flex;align-items:center;gap:9px}
+.ctrl button{width:32px;height:32px;border:0;border-radius:50%;background:var(--tint);color:var(--ink2);font-size:18px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:inherit}
+.ctrl button:active{background:var(--neutral)}
+.ctrl .val{width:42px;text-align:center;font-family:"Noto Sans TC",sans-serif;font-size:17px;font-weight:600;color:var(--ink);border:0;background:transparent;padding:4px 0;font-variant-numeric:tabular-nums}
+.ctrl .val:focus{outline:0;box-shadow:inset 0 -2px 0 var(--accent)}
+.haverow{display:flex;align-items:center;margin-top:14px;padding-top:12px;border-top:1px solid var(--border)}
+.haverow .hl{font-size:13px;font-weight:600;color:var(--ink)}
+.haverow .hv{margin-left:auto;font-size:16px;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums}
+.haverow .hv small{font-size:11px;color:var(--ink3);font-weight:500;margin-left:1px}
+.pstat{font-size:12.5px;font-weight:700;border-radius:9px;padding:4px 11px;white-space:nowrap}
+.pstat.ok{color:var(--ok);background:var(--ok-soft)}
+.pstat.short{color:var(--danger);background:var(--danger-soft)}
+.ptarget{font-size:12px;color:var(--ink3);margin-top:3px}
+.ptotal{margin-top:13px;padding-top:12px;border-top:1px solid var(--border)}
+.ptl{display:flex;align-items:baseline}
+.ptl span{font-size:13px;color:var(--ink2);font-weight:600}
+.ptl b{margin-left:auto;font-size:20px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
+.ptl b small{font-size:12px;color:var(--ink3);font-weight:500;margin-left:2px}
+.pbar{height:7px;background:var(--tint);border-radius:4px;margin-top:9px;overflow:hidden}
+.pbar i{display:block;height:100%;border-radius:4px;background:var(--accent);transition:width .15s}
+.pbar i.ok{background:var(--ok)}
+.pbd{margin-top:11px;font-size:12px;color:var(--ink2);background:var(--tint);border-radius:8px;padding:8px 11px;font-variant-numeric:tabular-nums;line-height:1.5}
+.pbd b{color:var(--accent);font-weight:700}
+.pbar i.short{background:var(--danger)}
 /* 煮茶大卡（每鍋一張） */
 .brew{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:15px 16px;box-shadow:0 1px 3px rgba(43,40,36,.07);margin-bottom:11px}
 .brew .bh{display:flex;align-items:baseline;gap:8px}
@@ -188,10 +216,10 @@ function dayTotal(t,day){ return day==='weekend'?tot[t.id].wkd:tot[t.id].wk; }
 function remainMl(t){ return (st.pot[t.id]||0)*t.potCc + (t.hasCup?(st.cup[t.id]||0)*500:0); }
 function tailRatio(t){ var w=segOv[t.id], s=w[0]+w[1]+w[2]; return s<=0?0:(w[1]+w[2])/s; }
 function itemDue(t){
-  var total, ratio;
-  if(st.ctx==='tomorrow'){ total=dayTotal(t,st.day); ratio=1; }
-  else { total=dayTotal(t,st.day); ratio=tailRatio(t); }
-  var due=total*ratio - remainMl(t); if(due<0)due=0;
+  var total=dayTotal(t,st.day), have=remainMl(t), due;
+  if(st.ctx==='tomorrow'){ due = total + (total - have); }   /* 基本量 ＋ 今天不足(−多於) */
+  else { due = total*tailRatio(t) - have; }                  /* 補煮：今天剩需 − 現有 */
+  if(due<0)due=0;
   return Math.round(due/500)*500;
 }
 function buckets(total){ var out=[]; while(total>0){ var b=Math.min(total,MAX_BUCKET); out.push(b); total-=b; } return out; }
@@ -270,7 +298,7 @@ function submitPlan(){ var plan={}; TEAS.forEach(function(t){ plan[t.id]=itemDue
   var body={plan:plan, ctx:st.ctx, day:st.day, dlabel:di.m+'/'+di.day, at:Date.now()};
   planMsg='送出中…'; render();
   fetch(planUrl(kind),{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
-  .then(function(r){ if(!r.ok)throw 0; resetTimersFor(kind); plans[kind]=body; planMsg='✓ 已送出到「'+(kind==='next'?'給明天':'今天補煮')+'」'; render(); })
+  .then(function(r){ if(!r.ok)throw 0; resetTimersFor(kind); plans[kind]=body; planMsg='✓ 已送出到「'+(kind==='next'?'今日開班':'補煮')+'」'; render(); })
   .catch(function(){ planMsg='✕ 送出失敗（連線或權限）'; render(); }); }
 function loadPlans(silent){ if(!silent){planMsg='讀取中…'; render();} var done=0, ok=false;
   ['next','today'].forEach(function(kind){
@@ -301,21 +329,16 @@ function pageBrew(){
   var h='<div class="head"><div class="title"><span class="leaf"></span>今天煮茶</div></div>';
   var t0=dateInfo(0);
   var hasNext=!!(plans.next&&plans.next.plan), hasToday=!!(plans.today&&plans.today.plan);
-  if(!hasNext && !hasToday){
+  h+='<div class="ctxseg"><button class="'+(st.brewKind==='next'?'on':'')+'" onclick="setBrewKind(\'next\')">今日開班<small>今天煮・明天賣'+(hasNext?'':' ・尚無')+'</small></button>'+
+     '<button class="'+(st.brewKind==='today'?'on':'')+'" onclick="setBrewKind(\'today\')">補煮<small>當天現賣'+(hasToday?'':' ・尚無')+'</small></button></div>';
+  var kind=st.brewKind, p=plans[kind];
+  if(!p || !p.plan){
     h+='<div class="sub">'+t0.m+'/'+t0.day+'（週'+t0.wd+'）</div>';
-    h+='<div class="empty">尚無要煮的資料。<br>請到「盤點算量」盤點並送出。<br><br><button class="ghost" onclick="loadPlans(false)">重新讀取雲端</button></div>'; return h;
+    h+='<div class="empty">「'+(kind==='next'?'今日開班':'補煮')+'」目前沒有資料。<br>請到「盤點算量」選同一個、盤點後送出，這裡才會出現要煮的量。<br><br><button class="ghost" onclick="loadPlans(false)">重新讀取雲端</button></div>';
+    return h;
   }
-  if(hasNext && hasToday){
-    h+='<div class="ctxseg"><button class="'+(st.brewKind==='next'?'on':'')+'" onclick="setBrewKind(\'next\')">給明天<small>冰鎮・隔天賣</small></button>'+
-       '<button class="'+(st.brewKind==='today'?'on':'')+'" onclick="setBrewKind(\'today\')">今天補煮<small>當天現賣</small></button></div>';
-  }
-  var kind=st.brewKind;
-  if(kind==='next' && !hasNext) kind='today';
-  if(kind==='today' && !hasToday) kind='next';
-  st.brewKind=kind;
-  var p=plans[kind];
-  var forDay = (kind==='today') ? '今天現賣（臨時補煮）' : '給 '+p.dlabel+' 賣（冰鎮）';
-  h+='<div class="sub">'+t0.m+'/'+t0.day+'（週'+t0.wd+'）　・這批 '+forDay+'　・'+hhmm(p.at)+' 送出</div>';
+  var forDay = (kind==='today') ? '今天現賣（臨時補煮）' : '今天煮、'+p.dlabel+' 賣（冰鎮）';
+  h+='<div class="sub">'+t0.m+'/'+t0.day+'（週'+t0.wd+'）　・'+forDay+'　・'+hhmm(p.at)+' 送出</div>';
   var perBase=[];
   BASES.forEach(function(b){ var bs=brewBatches(b, p.plan); if(bs.length) perBase.push({b:b, batches:bs}); });
   if(perBase.length===0){ h+='<div class="empty">這次不需煮茶（量都已足）。</div>'; return h; }
@@ -365,15 +388,19 @@ function phaseCtl(card,phase,mins,label){
 /* ── 盤點算量頁（情境：備明天／補今天） ── */
 function pagePlan(){
   var h='<div class="head"><div class="title"><span class="leaf"></span>盤點算量</div></div>';
-  h+='<div class="sub">收班時點剩量，算出今天要煮多少（冰鎮後給隔天賣）</div>';
-  h+='<div class="ctxseg"><button class="'+(st.ctx==='tomorrow'?'on':'')+'" onclick="setCtx(\'tomorrow\')">煮給明天賣<small>今天煮・冰鎮・隔天賣</small></button>'+
-     '<button class="'+(st.ctx==='today'?'on':'')+'" onclick="setCtx(\'today\')">今天臨時補煮<small>營業中・離峰才用</small></button></div>';
+  h+='<div class="sub">'+(st.ctx==='tomorrow'?'下班盤點店內現有，確認有沒有備足明天的量；明天要煮多少看下方「交接」':'營業中盤點現有，補煮 ＝ 今天剩餘 − 現有')+'</div>';
+  h+='<div class="ctxseg"><button class="'+(st.ctx==='tomorrow'?'on':'')+'" onclick="setCtx(\'tomorrow\')">今日開班<small>今天煮・明天賣</small></button>'+
+     '<button class="'+(st.ctx==='today'?'on':'')+'" onclick="setCtx(\'today\')">補煮<small>營業中・當天現賣</small></button></div>';
   var di=(st.ctx==='tomorrow')?dateInfo(1):dateInfo(0);
   h+='<div class="daybar"><span>'+(st.ctx==='tomorrow'?'要賣的那天（明天）':'今天')+'</span><span class="d">'+di.m+'/'+di.day+'（週'+di.wd+'）</span>'+
      '<div class="mini"><button class="'+(st.day==='weekday'?'on':'')+'" onclick="setDay(\'weekday\')">平日</button><button class="'+(st.day==='weekend'?'on':'')+'" onclick="setDay(\'weekend\')">假日</button></div></div>';
-  /* 交接格式總覽（Rei 重做） */
+  /* 盤點輸入（確認今天有沒有備足明天的量） */
+  var lastG='';
+  TEAS.forEach(function(t){ if(t.group!==lastG){ h+='<div class="sect"><span class="dot"></span>'+t.group+'</div>'; lastG=t.group; } h+=planCard(t); });
+  /* 交接：明天要煮多少（給隔天開班的人） */
   var amt={}; TEAS.forEach(function(t){ amt[t.id]=itemDue(t); });
-  h+='<div class="handover"><div class="label">'+(st.ctx==='tomorrow'?'今天要煮（給 '+di.m+'/'+di.day+' 賣）':'現在要補煮')+'</div>';
+  h+='<div class="sect"><span class="dot"></span>'+(st.ctx==='tomorrow'?'明天要煮（交接給隔天）':'現在要補煮')+'</div>';
+  h+='<div class="handover">';
   BASES.forEach(function(b){
     var d=handoverData(b,amt);
     if(d.off){ h+='<div class="hrow off"><div class="hl"><div class="htn"><span class="cd"></span>'+b.name+'</div></div><div class="htot">免煮</div></div>'; return; }
@@ -389,22 +416,26 @@ function pagePlan(){
        '<div class="htot">'+num(d.total)+'<span>ml</span></div></div>';
   });
   h+='<button class="copy" onclick="copyHandover()">⧉ 複製交接訊息</button></div>';
-  /* 盤點輸入 */
-  var lastG='';
-  TEAS.forEach(function(t){ if(t.group!==lastG){ h+='<div class="sect"><span class="dot"></span>'+t.group+'</div>'; lastG=t.group; } h+=planCard(t); });
   h+='<button class="bigbtn" onclick="submitPlan()">送出（給煮茶頁）</button>';
   h+='<button class="ghost" onclick="loadPlans(false)">載入最新（老闆遠端查看）</button>';
   if(planMsg) h+='<div class="msg" style="color:'+(planMsg.indexOf('✕')>=0||planMsg.indexOf('失敗')>=0?'var(--danger)':'var(--ok)')+'">'+planMsg+'</div>';
   return h;
 }
 function planCard(t){
-  var due=itemDue(t), ok=due<=0;
-  var res=ok?'<div class="res">已足・免煮</div>':'<div class="resn">'+num(due)+' ml</div>';
-  var potLab=(st.ctx==='tomorrow')?(t.hasCup?'壺裝・會留到明天':'會留到明天的剩量'):(t.hasCup?'壺裝剩量':'目前剩量');
-  var potRow='<div class="step"><span class="lab">'+potLab+'</span><div class="ctrl"><button onclick="bumpPot(\''+t.id+'\',-1)">−</button><input class="val mono" inputmode="decimal" value="'+fmt1(st.pot[t.id])+'" onchange="setPot(\''+t.id+'\',this.value)" onfocus="this.select()"><button onclick="bumpPot(\''+t.id+'\',1)">+</button><span class="vu">壺</span></div></div>';
-  var cupRow=t.hasCup?'<div class="step"><span class="lab">封杯'+(st.ctx==='tomorrow'?'・會留到明天':'剩量')+'</span><div class="ctrl"><button onclick="bumpCup(\''+t.id+'\',-1)">−</button><input class="val mono" inputmode="numeric" value="'+st.cup[t.id]+'" onchange="setCup(\''+t.id+'\',this.value)" onfocus="this.select()"><button onclick="bumpCup(\''+t.id+'\',1)">+</button><span class="vu">杯</span></div></div>':'';
-  var sealNote=(st.ctx==='tomorrow'&&t.hasCup&&sealOv[t.id]>0)?'<div class="ing" style="margin-top:10px"><span class="cup">打烊前先封 <b>'+sealOv[t.id]+'</b> 杯給明早</span></div>':'';
-  return '<div class="card '+(ok?'ok':'')+'"><div class="top"><span class="sdot"></span><div><div class="name">'+t.name+'</div><div class="meta">1壺＝'+num(t.potCc)+'ml</div></div><div class="right">'+res+'</div></div>'+potRow+cupRow+sealNote+'</div>';
+  var isT=(st.ctx==='tomorrow');
+  var total=dayTotal(t,st.day), have=remainMl(t);
+  var base=isT?total:Math.round(total*tailRatio(t));
+  var pct=base>0?Math.min(100,Math.round(have/base*100)):100;
+  var enough=have>=base;
+  var status=enough?'<span class="chk"><i></i></span>':'<span class="diff">差 '+num(base-have)+'</span>';
+  var sub='<div class="ptarget">'+(isT?'明天要賣（基本量）':'今天剩需')+' '+num(base)+' ml</div>';
+  var potGrp='<div class="sgrp"><span class="slab">壺</span><div class="ctrl"><button onclick="bumpPot(\''+t.id+'\',-1)">−</button><input class="val mono" inputmode="decimal" value="'+fmt1(st.pot[t.id])+'" onchange="setPot(\''+t.id+'\',this.value)" onfocus="this.select()"><button onclick="bumpPot(\''+t.id+'\',1)">+</button></div></div>';
+  var cupGrp=t.hasCup?'<div class="sgrp"><span class="slab">杯</span><div class="ctrl"><button onclick="bumpCup(\''+t.id+'\',-1)">−</button><input class="val mono" inputmode="numeric" value="'+st.cup[t.id]+'" onchange="setCup(\''+t.id+'\',this.value)" onfocus="this.select()"><button onclick="bumpCup(\''+t.id+'\',1)">+</button></div></div>':'';
+  var stepRow='<div class="steprow">'+potGrp+cupGrp+'</div>';
+  var haveRow='<div class="haverow"><span class="hl">現有 / 基本量</span><span class="hv">'+num(have)+' / '+num(base)+'<small> ml</small></span></div>';
+  var bar='<div class="pbar"><i class="'+(enough?'ok':'')+'" style="width:'+pct+'%"></i></div>';
+  var sealNote=(isT&&t.hasCup&&sealOv[t.id]>0)?'<div class="seala">'+IC.cup+'打烊前封 <b>'+sealOv[t.id]+'</b> 杯給明早</div>':'';
+  return '<div class="card"><div class="top"><span class="sdot"></span><div><div class="name">'+t.name+'</div>'+sub+'</div><div class="right">'+status+'</div></div>'+stepRow+haveRow+bar+sealNote+'</div>';
 }
 
 function pageSet(){
@@ -442,8 +473,7 @@ function render(){
 }
 document.querySelectorAll('#nav button').forEach(function(b){ b.addEventListener('click',function(){ go(b.dataset.pg); }); });
 
-st.ctx = (new Date().getHours()>=14) ? 'tomorrow' : 'today';
-setCtx(st.ctx);
+setCtx('tomorrow');
 st.page = (new Date().getHours()>=17) ? 'plan' : 'brew';
 render(); loadConfig(); loadPlans(true);
 </script>
