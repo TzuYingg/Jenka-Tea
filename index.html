@@ -33,6 +33,12 @@ html,body{background:var(--cream);color:var(--ink);font-family:"Noto Sans TC",sa
 .ctxseg .wd{color:var(--accent)}
 .daybar{background:var(--card);border:1px solid var(--border);border-radius:11px;padding:11px 13px;margin-bottom:14px;box-shadow:0 1px 3px rgba(43,40,36,.06);display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink2)}
 .daybar .d{font-weight:600;color:var(--ink)}
+.statusbar{display:flex;align-items:center;gap:9px;background:#EBF0EC;border-radius:10px;padding:10px 13px;margin-bottom:14px;font-size:12px;color:var(--ink2)}
+.statusbar .sd{width:7px;height:7px;border-radius:50%;background:var(--ok);flex:none}
+.statusbar .t{font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
+.statusbar.none{background:var(--tint)}
+.statusbar.none .sd{background:#C2BCAE}
+.ghosthint{text-align:center;font-size:11px;color:var(--ink3);margin-top:6px;line-height:1.5}
 .mini{display:flex;background:var(--tint);border-radius:14px;padding:2px;margin-left:auto}
 .mini button{border:0;background:transparent;color:var(--ink3);font-family:inherit;font-size:11px;font-weight:600;padding:5px 11px;border-radius:12px;cursor:pointer}
 .mini button.on{background:#fff;color:var(--ink);box-shadow:0 1px 2px rgba(43,40,36,.12)}
@@ -154,7 +160,7 @@ html,body{background:var(--cream);color:var(--ink);font-family:"Noto Sans TC",sa
 .tmbtn.run{background:var(--accent);color:#fff;border-color:var(--accent)}
 .tmbtn.run.rest{background:var(--warn);border-color:var(--warn)}
 .tmbtn .tm{font-variant-numeric:tabular-nums;font-size:15px}
-.bigbtn{width:100%;margin-top:18px;background:var(--ink);border:0;color:#fff;font-family:inherit;font-size:15px;font-weight:600;padding:15px 0;border-radius:12px;cursor:pointer}
+.bigbtn{width:100%;margin-top:18px;background:var(--ink);border:0;color:#fff;font-family:inherit;font-size:15px;font-weight:600;padding:15px 0;border-radius:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
 .ghost{width:100%;margin-top:10px;background:var(--surface);border:1px solid var(--border);color:var(--ink2);font-family:inherit;font-size:13px;font-weight:600;padding:12px 0;border-radius:11px;cursor:pointer}
 .msg{font-size:12px;font-weight:600;text-align:center;margin-top:10px}
 .empty{text-align:center;color:var(--ink3);font-size:13px;line-height:1.7;padding:30px 10px}
@@ -523,7 +529,7 @@ function loadLatestStock(){ var kind=kindOf(st.ctx);
     render();
   }).catch(function(){ planMsg='讀取失敗'; render(); }); }
 
-function go(pg){ st.page=pg; if(pg==='brew')loadPlans(true); if(pg==='hist')loadHistory(false); render(); }
+function go(pg){ st.page=pg; if(pg==='brew')loadPlans(true); if(pg==='plan')loadPlans(true); if(pg==='hist')loadHistory(false); render(); }
 /* ── 歷史：讀取封存、依「賣的那天」分組 ── */
 function loadHistory(force){ if(histState==='loading')return; if(histData&&!force){ if(st.page==='hist')render(); return; }
   histState='loading'; histMsg=''; if(st.page==='hist')render();
@@ -729,6 +735,9 @@ function phaseCtl(card,phase,mins,label){
 }
 
 /* ── 茶量頁（情境：下班盤點／即時盤點） ── */
+function cloudStatusBar(){ var p=plans[kindOf(st.ctx)];
+  if(p&&p.at){ return '<div class="statusbar"><span class="sd"></span><span>雲端最新</span><span class="t">'+fmtAtDay(p.at)+' '+hhmm(p.at)+'</span><span>已儲存</span></div>'; }
+  return '<div class="statusbar none"><span class="sd"></span><span>雲端最新</span><span class="t">尚未儲存今日茶量</span></div>'; }
 function pagePlan(){
   var h='<div class="head"><div class="title"><span class="leaf"></span>茶量</div></div>';
   h+='<div class="sub">'+(st.ctx==='tomorrow'?'下班盤點店內現有，確認有沒有備足後天要賣的量；明天要煮多少看下方「交接」':'營業中盤點現有，依時段預估今天還要賣多少，算出要補煮的量')+'</div>';
@@ -737,6 +746,7 @@ function pagePlan(){
   var di=(st.ctx==='tomorrow')?dateInfo(2):dateInfo(0);
   h+='<div class="daybar"><span>'+(st.ctx==='tomorrow'?'要賣的那天（後天）':'今天')+'</span><span class="d">'+di.m+'/'+di.day+'（週'+di.wd+'）</span>'+
      '<span class="dnote">茶量依週'+di.wd+'</span></div>';
+  h+=cloudStatusBar();
   if(st.ctx==='today' && remainRatioNow()<=0){
     h+='<div class="closednote">現在不在營業時段（'+bizHoursText()+'），「今天剩需／基本量」會是 0、不需再補煮。各品項仍可看「可賣約 N 杯」；要試算補煮量請在營業時間內操作。</div>';
   }
@@ -761,9 +771,11 @@ function pagePlan(){
        '<div class="htot">'+num(d.total)+'<span>ml</span></div></div>';
   });
   h+='<button class="copy" onclick="copyHandover()">⧉ 複製交接訊息</button></div>';
-  h+='<button class="bigbtn" onclick="submitPlan()">送出（給煮茶頁）</button>';
-  h+='<button class="ghost" onclick="loadLatestStock()">載入最新（老闆遠端查看）</button>';
+  h+='<button class="bigbtn" onclick="submitPlan()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:17px;height:17px"><path d="M5 4h11l3 3v13H5z"/><path d="M8 4v5h7"/><path d="M8 20v-6h8v6"/></svg>儲存今日茶量資料</button>';
   if(planMsg) h+='<div class="msg" style="color:'+(planMsg.indexOf('✕')>=0||planMsg.indexOf('失敗')>=0?'var(--danger)':'var(--ok)')+'">'+planMsg+'</div>';
+  h+='<button class="ghost" onclick="loadLatestStock()">最新茶量資料</button>';
+  var lp=plans[kindOf(st.ctx)];
+  h+='<div class="ghosthint">'+((lp&&lp.at)?('拉回雲端最後儲存的那筆（'+(new Date(lp.at).getMonth()+1)+'/'+new Date(lp.at).getDate()+' '+hhmm(lp.at)+'）· 會覆蓋目前輸入'):'雲端目前沒有可載入的資料')+'</div>';
   return h;
 }
 function teaLabel(t){ return t.name+' <span class="sg sg-'+t.sugar+'">'+(t.sugar==='half'?'半糖':'無糖')+'</span>'; }
