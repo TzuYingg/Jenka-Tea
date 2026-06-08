@@ -476,17 +476,15 @@ function planUrl(kind){ return kind==='next'?PLAN_NEXT_URL:PLAN_TODAY_URL; }
 function kindOf(ctx){ return ctx==='tomorrow'?'next':'today'; }
 /* 開班資料是否「過時」：過了當天 13:00、且該筆是前一天（含更早）送出的，畫面就收起（不刪資料） */
 function isStaleNext(){
-  if(!(plans.next&&plans.next.at)) return false;
-  var now=new Date(); if(now.getHours()<13) return false;
-  var sub=new Date(plans.next.at);
-  var subDay=new Date(sub.getFullYear(),sub.getMonth(),sub.getDate()).getTime();
-  var today=new Date(now.getFullYear(),now.getMonth(),now.getDate()).getTime();
-  return subDay<today;
+  if(!(plans.next&&plans.next.plan)) return false;
+  var dk=plans.next.dkey||dkeyOf(plans.next); if(!dk) return false;
+  var p=String(dk).split('-'); var sell=new Date(+p[0],(+p[1])-1,+p[2]); sell.setHours(13,0,0,0);
+  return Date.now()>=sell.getTime();   /* 過了「賣的那天」13:00 才收起 */
 }
-/* 封存的日期鍵：開班＝隔日、補煮＝當日（與 dlabel 一致）；舊資料無 dkey 時由 at 回推 */
+/* 封存的日期鍵＝賣的那天：開班＝盤點日+2、補煮＝當日；舊資料無 dkey 時由 at 回推 */
 function dkeyOf(rec){
   if(rec.dkey) return rec.dkey;
-  var d=new Date(rec.at||Date.now()); if(kindOf(rec.ctx)==='next') d.setDate(d.getDate()+1);
+  var d=new Date(rec.at||Date.now()); if(kindOf(rec.ctx)==='next') d.setDate(d.getDate()+2);
   return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);
 }
 /* 封存每次送出／調整：同一天同一種(開班/補煮)覆蓋同一筆，一天各留一筆最後確認 */
@@ -499,7 +497,7 @@ function resetTimersFor(kind){ stopAlarm();
   Object.keys(timers).forEach(function(k){ if(k.indexOf(kind+'_')===0){ if(timers[k].iv)clearInterval(timers[k].iv); delete timers[k]; } });
   Object.keys(phaseDone).forEach(function(k){ if(k.indexOf(kind+'_')===0) delete phaseDone[k]; }); }
 function submitPlan(){ var plan={}; TEAS.forEach(function(t){ plan[t.id]=itemDue(t); });
-  var kind=kindOf(st.ctx), di=(st.ctx==='tomorrow')?dateInfo(1):dateInfo(0);
+  var kind=kindOf(st.ctx), di=(st.ctx==='tomorrow')?dateInfo(2):dateInfo(0);
   var body={plan:plan, ctx:st.ctx, day:st.day, dlabel:di.m+'/'+di.day, dwd:di.wd, dkey:di.key, pot:Object.assign({},st.pot), cup:Object.assign({},st.cup), at:Date.now()};
   planMsg='送出中…'; render();
   fetch(planUrl(kind),{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
@@ -534,6 +532,7 @@ function loadHistory(force){ if(histState==='loading')return; if(histData&&!forc
     if(st.page==='hist')render();
   }).catch(function(){ histState='error'; if(st.page==='hist')render(); }); }
 function fmtDkeyShort(dkey){ var p=String(dkey).split('-'); var d=new Date(+p[0],(+p[1])-1,+p[2]); return (+p[1])+'/'+(+p[2])+'（週'+WD_LABEL[d.getDay()]+'）'; }
+function fmtDkeyMinus(dkey,n){ var p=String(dkey).split('-'); var d=new Date(+p[0],(+p[1])-1,+p[2]); d.setDate(d.getDate()-n); return (d.getMonth()+1)+'/'+d.getDate()+'（週'+WD_LABEL[d.getDay()]+'）'; }
 function fmtAtDay(at){ var d=new Date(at); return (d.getMonth()+1)+'/'+d.getDate()+'（週'+WD_LABEL[d.getDay()]+'）'; }
 function baseTotals(plan){ var o={}; BASES.forEach(function(b){ var ids=[b.half,b.none,b.single].filter(Boolean); o[b.id]=ids.reduce(function(s,id){return s+(+plan[id]||0);},0); }); return o; }
 function toggleHistEntry(k){ st.histOpen[k]=!st.histOpen[k]; render(); }
@@ -541,7 +540,7 @@ function toggleHistMore(){ st.histMore=!st.histMore; render(); }
 function setHistQuery(v){ st.histQuery=v||''; render(); }
 function clearHistQuery(){ st.histQuery=''; render(); }
 function histEntryHTML(dkey,kind,rec){ var k=dkey+'_'+kind, open=!!st.histOpen[k];
-  var cooked=(kind==='next')?('煮於 '+fmtAtDay(rec.at)):'當天煮';
+  var cooked=(kind==='next')?('煮於 '+fmtDkeyMinus(dkey,1)):'當天煮';
   var bt=baseTotals(rec.plan||{});
   var sum='<span class="hb">紅茶</span> '+num(bt.black)+'<span class="hsep">·</span><span class="hb">濃茶</span> '+num(bt.strong)+'<span class="hsep">·</span><span class="hb">奶茶</span> '+num(bt.milk)+' ml';
   var h='<div class="hent '+kind+(open?' open':'')+'" onclick="toggleHistEntry(\''+k+'\')"><div class="her"><span class="hdot"></span><span class="hkd">'+(kind==='next'?'開班':'補煮')+'</span><span class="hcook">'+cooked+'</span><span class="hcv"></span></div>';
@@ -549,7 +548,7 @@ function histEntryHTML(dkey,kind,rec){ var k=dkey+'_'+kind, open=!!st.histOpen[k
   else {
     h+='<div class="hdet">';
     TEAS.forEach(function(t){ h+='<div class="hdr"><span class="hdn">'+teaLabel(t)+'</span><span class="hdv">'+num(+(rec.plan||{})[t.id]||0)+'<small> ml</small></span></div>'; });
-    h+='<div class="htm">'+(kind==='next'?'前一晚 ':'當天 ')+hhmm(rec.at)+' 送出</div></div>';
+    h+='<div class="htm">盤點送出 '+fmtAtDay(rec.at)+' '+hhmm(rec.at)+'</div></div>';
   }
   return h+'</div>'; }
 function pageHist(){
@@ -582,7 +581,7 @@ function pageHist(){
     if(st.histMore) older.forEach(function(dk){ h+=cardHTML(dk); });
   }
   return h; }
-function setCtx(c){ st.ctx=c; var di=(c==='tomorrow')?dateInfo(1):dateInfo(0); st.day=di.weekend?'weekend':'weekday'; st.wd=di.wi; render(); }
+function setCtx(c){ st.ctx=c; var di=(c==='tomorrow')?dateInfo(2):dateInfo(0); st.day=di.weekend?'weekend':'weekday'; st.wd=di.wi; render(); }
 function setDay(v){ st.day=v; render(); }
 function unlock(){ var v=document.getElementById('pwIn').value; if(v===ADMIN_PW){st.unlocked=true;lockMsg='';}else{lockMsg='密碼不對';} render(); }
 function bumpPot(id,dir){ var v=(st.pot[id]||0)+dir*0.5; if(v<0)v=0; st.pot[id]=Math.round(v*10)/10; render(); }
@@ -644,7 +643,8 @@ function pageBrew(){
     h+='<div class="empty">'+(hidden?'「下班盤點」的開班資料已過今日（13:00 後自動收起）。<br>當晚做下班盤點送出後，這裡會重新出現明天的量。':'「'+(kind==='next'?'下班盤點':'即時盤點')+'」目前沒有資料。<br>請到「茶量」選同一個、盤點後送出，這裡才會出現要煮的量。')+'<br><br><button class="ghost" onclick="loadPlans(false)">重新讀取雲端</button></div>';
     return h;
   }
-  var forDay = (kind==='today') ? '今天現賣（即時補煮）' : '今天煮、'+p.dlabel+' 賣（冰鎮）';
+  var ndk=p.dkey||dkeyOf(p);
+  var forDay = (kind==='today') ? '今天現賣（即時補煮）' : (fmtDkeyMinus(ndk,1)+' 煮 → '+fmtDkeyMinus(ndk,0)+' 賣（冰鎮）');
   h+='<div class="sub">'+t0.m+'/'+t0.day+'（週'+t0.wd+'）　・'+forDay+'　・'+hhmm(p.at)+' 送出</div>';
   var editing=(st.editKind===kind);
   var src=editing?st.editVals:p.plan;
@@ -731,11 +731,11 @@ function phaseCtl(card,phase,mins,label){
 /* ── 茶量頁（情境：下班盤點／即時盤點） ── */
 function pagePlan(){
   var h='<div class="head"><div class="title"><span class="leaf"></span>茶量</div></div>';
-  h+='<div class="sub">'+(st.ctx==='tomorrow'?'下班盤點店內現有，確認有沒有備足明天的量；明天要煮多少看下方「交接」':'營業中盤點現有，依時段預估今天還要賣多少，算出要補煮的量')+'</div>';
-  h+='<div class="ctxseg"><button class="'+(st.ctx==='tomorrow'?'on':'')+'" onclick="setCtx(\'tomorrow\')">下班盤點<small>今天煮・明天賣</small></button>'+
+  h+='<div class="sub">'+(st.ctx==='tomorrow'?'下班盤點店內現有，確認有沒有備足後天要賣的量；明天要煮多少看下方「交接」':'營業中盤點現有，依時段預估今天還要賣多少，算出要補煮的量')+'</div>';
+  h+='<div class="ctxseg"><button class="'+(st.ctx==='tomorrow'?'on':'')+'" onclick="setCtx(\'tomorrow\')">下班盤點<small>明天煮・後天賣</small></button>'+
      '<button class="'+(st.ctx==='today'?'on':'')+'" onclick="setCtx(\'today\')">即時盤點<small>營業中・含明天賣</small></button></div>';
-  var di=(st.ctx==='tomorrow')?dateInfo(1):dateInfo(0);
-  h+='<div class="daybar"><span>'+(st.ctx==='tomorrow'?'要賣的那天（明天）':'今天')+'</span><span class="d">'+di.m+'/'+di.day+'（週'+di.wd+'）</span>'+
+  var di=(st.ctx==='tomorrow')?dateInfo(2):dateInfo(0);
+  h+='<div class="daybar"><span>'+(st.ctx==='tomorrow'?'要賣的那天（後天）':'今天')+'</span><span class="d">'+di.m+'/'+di.day+'（週'+di.wd+'）</span>'+
      '<span class="dnote">茶量依週'+di.wd+'</span></div>';
   if(st.ctx==='today' && remainRatioNow()<=0){
     h+='<div class="closednote">現在不在營業時段（'+bizHoursText()+'），「今天剩需／基本量」會是 0、不需再補煮。各品項仍可看「可賣約 N 杯」；要試算補煮量請在營業時間內操作。</div>';
@@ -778,7 +778,7 @@ function planCard(t){
   var enough=have>=base;
   var status=enough?'<span class="chk"><i></i></span>':'<span class="diff">差 '+num(base-have)+'</span>';
   var sub=isT
-    ? '<div class="ptarget">明天要賣（基本量） '+num(base)+' ml</div>'
+    ? '<div class="ptarget">後天賣（基本量） '+num(base)+' ml</div>'
     : '<div class="ptarget">今天剩需 '+num(todayNeed)+' ／ 明天基本量 '+num(tomB)+' ml</div>';
   var potGrp='<div class="sgrp"><span class="slab">壺</span><div class="ctrl"><button onclick="bumpPot(\''+t.id+'\',-1)">−</button><input class="val mono" inputmode="decimal" value="'+fmt1(st.pot[t.id])+'" onchange="setPot(\''+t.id+'\',this.value)" onfocus="this.select()"><button onclick="bumpPot(\''+t.id+'\',1)">+</button></div></div>';
   var cupGrp=t.hasCup?'<div class="sgrp"><span class="slab">杯</span><div class="ctrl"><button onclick="bumpCup(\''+t.id+'\',-1)">−</button><input class="val mono" inputmode="numeric" value="'+st.cup[t.id]+'" onchange="setCup(\''+t.id+'\',this.value)" onfocus="this.select()"><button onclick="bumpCup(\''+t.id+'\',1)">+</button></div></div>':'';
