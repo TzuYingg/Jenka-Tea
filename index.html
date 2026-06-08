@@ -399,7 +399,7 @@ function itemDue(t){
   if(st.ctx==='tomorrow'){ due = totFor(t.id, dateInfo(1).wi) + totFor(t.id, dateInfo(2).wi) - have; }   /* 明日(賣)基本量 ＋ 後天(賣)基本量 − 現有 */
   else {                                                     /* 即時補煮：今天剩需 ＋ 明天基本量 − 現有 */
     var ratio=remainRatioNow();
-    var tomB = ratio>0 ? totFor(t.id, dateInfo(1).wi) : 0;   /* 明天基本量（依明天星期分級）；非營業時段不算 */
+    var tomB = totFor(t.id, dateInfo(1).wi);                 /* 明天基本量：一律計入（給明天開店用） */
     due = total*ratio + tomB - have;
   }
   if(due<0)due=0;
@@ -753,7 +753,7 @@ function pagePlan(){
   }
   h+=cloudStatusBar();
   if(st.ctx==='today' && remainRatioNow()<=0){
-    h+='<div class="closednote">現在不在營業時段（'+bizHoursText()+'），「今天剩需／基本量」會是 0、不需再補煮。各品項仍可看「可賣約 N 杯」；要試算補煮量請在營業時間內操作。</div>';
+    h+='<div class="closednote">現在不在營業時段（'+bizHoursText()+'），「今天剩需」為 0；下方目標＝明日基本量，補煮量＝明日基本量 − 現有。</div>';
   }
   /* 盤點輸入（確認今天有沒有備足明天的量） */
   TEAS.forEach(function(t){ h+=planCard(t); });
@@ -789,7 +789,7 @@ function planCard(t){
   var total=dayTotal(t), have=remainMl(t);
   var ratio=remainRatioNow();
   var todayNeed=Math.round(total*ratio);                      /* 今天剩需（時段比例） */
-  var tomB=(isT||ratio<=0)?0:totFor(t.id, dateInfo(1).wi);    /* 明天基本量（依明天星期分級） */
+  var tomB=isT?0:totFor(t.id, dateInfo(1).wi);                /* 明天基本量（即時：一律計入） */
   var base=isT?totFor(t.id, dateInfo(1).wi):(todayNeed+tomB); /* 下班盤點＝比明日(週二)基本量；即時＝今天剩需＋明天基本量 */
   var pct=base>0?Math.min(100,Math.round(have/base*100)):100;
   var enough=have>=base;
