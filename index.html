@@ -500,7 +500,7 @@ function resetTimersFor(kind){ stopAlarm();
   Object.keys(phaseDone).forEach(function(k){ if(k.indexOf(kind+'_')===0) delete phaseDone[k]; }); }
 function submitPlan(){ var plan={}; TEAS.forEach(function(t){ plan[t.id]=itemDue(t); });
   var kind=kindOf(st.ctx), di=(st.ctx==='tomorrow')?dateInfo(1):dateInfo(0);
-  var body={plan:plan, ctx:st.ctx, day:st.day, dlabel:di.m+'/'+di.day, dwd:di.wd, dkey:di.key, at:Date.now()};
+  var body={plan:plan, ctx:st.ctx, day:st.day, dlabel:di.m+'/'+di.day, dwd:di.wd, dkey:di.key, pot:Object.assign({},st.pot), cup:Object.assign({},st.cup), at:Date.now()};
   planMsg='送出中…'; render();
   fetch(planUrl(kind),{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
   .then(function(r){ if(!r.ok)throw 0; resetTimersFor(kind); plans[kind]=body; planMsg='✓ 已送出到「'+(kind==='next'?'下班盤點':'即時盤點')+'」'; render(); })
@@ -513,6 +513,17 @@ function loadPlans(silent){ if(!silent){planMsg='讀取中…'; render();} var d
       done++; if(done>=2 && !silent) planMsg = ok?'已載入最新':'雲端尚無資料'; render();
     }).catch(function(){ done++; if(done>=2 && !silent){ planMsg = ok?'已載入最新':'讀取失敗'; render(); } });
   }); }
+/* 茶量頁「載入最新」：把當前情境(開班/補煮)最後一次送出的盤點(壺/杯)還原回輸入 */
+function loadLatestStock(){ var kind=kindOf(st.ctx);
+  planMsg='讀取中…'; render();
+  fetch(planUrl(kind)).then(function(r){ return r.ok?r.json():null; }).then(function(d){
+    if(d&&d.plan){ if(!plans[kind]||plans[kind].at!==d.at) resetTimersFor(kind); plans[kind]=d;
+      var hasStock=!!(d.pot||d.cup);
+      TEAS.forEach(function(t){ st.pot[t.id]=d.pot?(+d.pot[t.id]||0):0; st.cup[t.id]=d.cup?(+d.cup[t.id]||0):0; });
+      planMsg = hasStock ? '✓ 已載入最後盤點' : '✓ 已載入（此筆無盤點數，僅有要煮量）';
+    } else { planMsg='雲端尚無資料'; }
+    render();
+  }).catch(function(){ planMsg='讀取失敗'; render(); }); }
 
 function go(pg){ st.page=pg; if(pg==='brew')loadPlans(true); if(pg==='hist')loadHistory(false); render(); }
 /* ── 歷史：讀取封存、依「賣的那天」分組 ── */
@@ -550,7 +561,7 @@ function pageHist(){
   if(histState==='empty'||!histData){ return h+'<div class="empty">目前還沒有歷史資料。<br>到「茶量」盤點送出後，這裡會開始累積。</div>'; }
   /* 依 dkey 分組 */
   var groups={};
-  Object.keys(histData).forEach(function(key){ var r=histData[key]; if(!r||!r.plan)return; var dk=r.dkey||(key.split('_')[0]); var kd=r.kind||(key.indexOf('_today')>=0?'today':'next');
+  Object.keys(histData).forEach(function(key){ var r=histData[key]; if(!r||!r.plan)return; var dk=r.dkey||dkeyOf(r); var kd=r.kind||(key.indexOf('_today')>=0?'today':'next');
     if(!groups[dk])groups[dk]={}; groups[dk][kd]=r; });
   var dkeys=Object.keys(groups).sort().reverse();
   if(st.histQuery){ dkeys=dkeys.filter(function(d){return d===st.histQuery;});
@@ -666,7 +677,7 @@ function setEditVal(id,v){ var n=parseInt(String(v).replace(/[^0-9]/g,''),10); s
 function resetEdit(){ var p=plans[st.brewKind]; if(!p||!p.plan)return; TEAS.forEach(function(t){ st.editVals[t.id]=+p.plan[t.id]||0; }); planMsg='已還原成送出時的量'; render(); }
 function saveEdit(){ var kind=st.brewKind, cur=plans[kind]; if(!cur||!cur.plan)return;
   var plan={}; TEAS.forEach(function(t){ plan[t.id]=+st.editVals[t.id]||0; });
-  var body={plan:plan, ctx:cur.ctx, day:cur.day, dlabel:cur.dlabel, dwd:cur.dwd, dkey:cur.dkey, at:Date.now()};
+  var body={plan:plan, ctx:cur.ctx, day:cur.day, dlabel:cur.dlabel, dwd:cur.dwd, dkey:cur.dkey, pot:cur.pot, cup:cur.cup, at:Date.now()};
   planMsg='儲存中…'; render();
   fetch(planUrl(kind),{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
   .then(function(r){ if(!r.ok)throw 0; plans[kind]=body; st.editKind=null; planMsg='✓ 已儲存調整（覆蓋這筆'+(kind==='next'?'開班':'補煮')+'）'; render(); })
@@ -751,7 +762,7 @@ function pagePlan(){
   });
   h+='<button class="copy" onclick="copyHandover()">⧉ 複製交接訊息</button></div>';
   h+='<button class="bigbtn" onclick="submitPlan()">送出（給煮茶頁）</button>';
-  h+='<button class="ghost" onclick="loadPlans(false)">載入最新（老闆遠端查看）</button>';
+  h+='<button class="ghost" onclick="loadLatestStock()">載入最新（老闆遠端查看）</button>';
   if(planMsg) h+='<div class="msg" style="color:'+(planMsg.indexOf('✕')>=0||planMsg.indexOf('失敗')>=0?'var(--danger)':'var(--ok)')+'">'+planMsg+'</div>';
   return h;
 }
