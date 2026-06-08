@@ -519,8 +519,8 @@ function loadLatestStock(){ var kind=kindOf(st.ctx);
   fetch(planUrl(kind)).then(function(r){ return r.ok?r.json():null; }).then(function(d){
     if(d&&d.plan){ if(!plans[kind]||plans[kind].at!==d.at) resetTimersFor(kind); plans[kind]=d;
       var hasStock=!!(d.pot||d.cup);
-      TEAS.forEach(function(t){ st.pot[t.id]=d.pot?(+d.pot[t.id]||0):0; st.cup[t.id]=d.cup?(+d.cup[t.id]||0):0; });
-      planMsg = hasStock ? '✓ 已載入最後盤點' : '✓ 已載入（此筆無盤點數，僅有要煮量）';
+      if(hasStock){ TEAS.forEach(function(t){ st.pot[t.id]=d.pot?(+d.pot[t.id]||0):0; st.cup[t.id]=d.cup?(+d.cup[t.id]||0):0; }); }
+      planMsg = hasStock ? '✓ 已載入最後盤點（壺／杯已還原）' : '此筆未含盤點數（壺／杯維持原狀）；要能還原，請先用新版重新送出一次';
     } else { planMsg='雲端尚無資料'; }
     render();
   }).catch(function(){ planMsg='讀取失敗'; render(); }); }
