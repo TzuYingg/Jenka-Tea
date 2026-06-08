@@ -30,6 +30,7 @@ html,body{background:var(--cream);color:var(--ink);font-family:"Noto Sans TC",sa
 .ctxseg button{flex:1;border:0;background:transparent;color:var(--ink2);font-family:inherit;font-size:13px;font-weight:600;padding:11px 0;border-radius:10px;cursor:pointer;line-height:1.3}
 .ctxseg button small{display:block;font-size:10px;font-weight:500;color:var(--ink3);margin-top:2px}
 .ctxseg button.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(43,40,36,.12)} .ctxseg button.on small{color:var(--ink2)}
+.ctxseg .wd{color:var(--accent)}
 .daybar{background:var(--card);border:1px solid var(--border);border-radius:11px;padding:11px 13px;margin-bottom:14px;box-shadow:0 1px 3px rgba(43,40,36,.06);display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink2)}
 .daybar .d{font-weight:600;color:var(--ink)}
 .mini{display:flex;background:var(--tint);border-radius:14px;padding:2px;margin-left:auto}
@@ -345,7 +346,11 @@ function remainRatioNow(){
 function itemDue(t){
   var total=dayTotal(t), have=remainMl(t), due;
   if(st.ctx==='tomorrow'){ due = total + (total - have); }   /* 基本量 ＋ 今天不足(−多於) */
-  else { due = total*remainRatioNow() - have; }              /* 即時補煮：今天剩需 − 現有 */
+  else {                                                     /* 即時補煮：今天剩需 ＋ 明天基本量 − 現有 */
+    var ratio=remainRatioNow();
+    var tomB = ratio>0 ? totFor(t.id, dateInfo(1).wi) : 0;   /* 明天基本量（依明天星期分級）；非營業時段不算 */
+    due = total*ratio + tomB - have;
+  }
   if(due<0)due=0;
   return Math.round(due/CUP_ML)*CUP_ML;
 }
@@ -430,7 +435,7 @@ function resetTimersFor(kind){ stopAlarm();
   Object.keys(phaseDone).forEach(function(k){ if(k.indexOf(kind+'_')===0) delete phaseDone[k]; }); }
 function submitPlan(){ var plan={}; TEAS.forEach(function(t){ plan[t.id]=itemDue(t); });
   var kind=kindOf(st.ctx), di=(st.ctx==='tomorrow')?dateInfo(1):dateInfo(0);
-  var body={plan:plan, ctx:st.ctx, day:st.day, dlabel:di.m+'/'+di.day, at:Date.now()};
+  var body={plan:plan, ctx:st.ctx, day:st.day, dlabel:di.m+'/'+di.day, dwd:di.wd, at:Date.now()};
   planMsg='送出中…'; render();
   fetch(planUrl(kind),{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
   .then(function(r){ if(!r.ok)throw 0; resetTimersFor(kind); plans[kind]=body; planMsg='✓ 已送出到「'+(kind==='next'?'下班盤點':'即時盤點')+'」'; render(); })
@@ -476,8 +481,12 @@ function pageBrew(){
   var h='<div class="head"><div class="title"><span class="leaf"></span>今天煮茶</div></div>';
   var t0=dateInfo(0);
   var hasNext=!!(plans.next&&plans.next.plan), hasToday=!!(plans.today&&plans.today.plan);
-  h+='<div class="ctxseg"><button class="'+(st.brewKind==='next'?'on':'')+'" onclick="setBrewKind(\'next\')">下班盤點<small>今天煮・明天賣'+(hasNext?'':' ・尚無')+'</small></button>'+
-     '<button class="'+(st.brewKind==='today'?'on':'')+'" onclick="setBrewKind(\'today\')">即時盤點<small>當天現賣'+(hasToday?'':' ・尚無')+'</small></button></div>';
+  var wdNext=(plans.next&&plans.next.dwd)?'<span class="wd">週'+plans.next.dwd+'</span> ':'';   /* 開班日星期（送出時存） */
+  var wdToday=(plans.today&&plans.today.dwd)?'<span class="wd">週'+plans.today.dwd+'</span> ':''; /* 補煮日星期 */
+  var subNext=hasNext?(plans.next.dlabel+'・今天煮明天賣'):'尚未更新資料';
+  var subToday=hasToday?(plans.today.dlabel+'・當天現賣'):'尚未更新資料';
+  h+='<div class="ctxseg"><button class="'+(st.brewKind==='next'?'on':'')+'" onclick="setBrewKind(\'next\')">'+wdNext+'開班<small>'+subNext+'</small></button>'+
+     '<button class="'+(st.brewKind==='today'?'on':'')+'" onclick="setBrewKind(\'today\')">'+wdToday+'補煮<small>'+subToday+'</small></button></div>';
   var kind=st.brewKind, p=plans[kind];
   if(!p || !p.plan){
     h+='<div class="sub">'+t0.m+'/'+t0.day+'（週'+t0.wd+'）</div>';
@@ -537,7 +546,7 @@ function pagePlan(){
   var h='<div class="head"><div class="title"><span class="leaf"></span>茶量</div></div>';
   h+='<div class="sub">'+(st.ctx==='tomorrow'?'下班盤點店內現有，確認有沒有備足明天的量；明天要煮多少看下方「交接」':'營業中盤點現有，依時段預估今天還要賣多少，算出要補煮的量')+'</div>';
   h+='<div class="ctxseg"><button class="'+(st.ctx==='tomorrow'?'on':'')+'" onclick="setCtx(\'tomorrow\')">下班盤點<small>今天煮・明天賣</small></button>'+
-     '<button class="'+(st.ctx==='today'?'on':'')+'" onclick="setCtx(\'today\')">即時盤點<small>營業中・當天現賣</small></button></div>';
+     '<button class="'+(st.ctx==='today'?'on':'')+'" onclick="setCtx(\'today\')">即時盤點<small>營業中・含明天賣</small></button></div>';
   var di=(st.ctx==='tomorrow')?dateInfo(1):dateInfo(0);
   h+='<div class="daybar"><span>'+(st.ctx==='tomorrow'?'要賣的那天（明天）':'今天')+'</span><span class="d">'+di.m+'/'+di.day+'（週'+di.wd+'）</span>'+
      '<span class="dnote">茶量依週'+di.wd+'</span></div>';
@@ -574,23 +583,29 @@ function teaLabel(t){ return t.name+' <span class="sg sg-'+t.sugar+'">'+(t.sugar
 function planCard(t){
   var isT=(st.ctx==='tomorrow');
   var total=dayTotal(t), have=remainMl(t);
-  var base=isT?total:Math.round(total*remainRatioNow());
+  var ratio=remainRatioNow();
+  var todayNeed=Math.round(total*ratio);                      /* 今天剩需（時段比例） */
+  var tomB=(isT||ratio<=0)?0:totFor(t.id, dateInfo(1).wi);    /* 明天基本量（依明天星期分級） */
+  var base=isT?total:(todayNeed+tomB);                        /* 即時盤點目標＝今天剩需＋明天基本量 */
   var pct=base>0?Math.min(100,Math.round(have/base*100)):100;
   var enough=have>=base;
   var status=enough?'<span class="chk"><i></i></span>':'<span class="diff">差 '+num(base-have)+'</span>';
-  var sub='<div class="ptarget">'+(isT?'明天要賣（基本量）':'今天剩需')+' '+num(base)+' ml</div>';
+  var sub=isT
+    ? '<div class="ptarget">明天要賣（基本量） '+num(base)+' ml</div>'
+    : '<div class="ptarget">今天剩需 '+num(todayNeed)+' ／ 明天基本量 '+num(tomB)+' ml</div>';
   var potGrp='<div class="sgrp"><span class="slab">壺</span><div class="ctrl"><button onclick="bumpPot(\''+t.id+'\',-1)">−</button><input class="val mono" inputmode="decimal" value="'+fmt1(st.pot[t.id])+'" onchange="setPot(\''+t.id+'\',this.value)" onfocus="this.select()"><button onclick="bumpPot(\''+t.id+'\',1)">+</button></div></div>';
   var cupGrp=t.hasCup?'<div class="sgrp"><span class="slab">杯</span><div class="ctrl"><button onclick="bumpCup(\''+t.id+'\',-1)">−</button><input class="val mono" inputmode="numeric" value="'+st.cup[t.id]+'" onchange="setCup(\''+t.id+'\',this.value)" onfocus="this.select()"><button onclick="bumpCup(\''+t.id+'\',1)">+</button></div></div>':'';
   var stepRow='<div class="steprow">'+potGrp+cupGrp+'</div>';
-  var haveRow='<div class="haverow"><span class="hl">現有 / 基本量</span><span class="hv">'+num(have)+' / '+num(base)+'<small> ml</small></span></div>';
+  var haveRow='<div class="haverow"><span class="hl">現有 / '+(isT?'基本量':'目標')+'</span><span class="hv">'+num(have)+' / '+num(base)+'<small> ml</small></span></div>';
   var bar='<div class="pbar"><i class="'+(enough?'ok':'')+'" style="width:'+pct+'%"></i></div>';
   var sealNote=(isT&&t.hasCup&&sealOv[t.id]>0)?'<div class="seala">'+IC.cup+'打烊前封 <b>'+sealOv[t.id]+'</b> 杯給明早</div>':'';
   /* 即時盤點：缺貨預警（可賣杯數＋分級小提示） */
   var cupWarn='';
   if(!isT){
     var cupMl=t.cupMl||CUP_ML, avail=Math.floor(have/cupMl);
-    var gapCups=Math.max(0,Math.ceil((base-have)/cupMl));
-    var lvl = enough ? 'ok' : ((have < base*0.25 || avail<=2) ? 'out' : 'low');
+    var enoughToday=have>=todayNeed;                          /* 預警只看今天剩需，不含明天 */
+    var gapCups=Math.max(0,Math.ceil((todayNeed-have)/cupMl));
+    var lvl = enoughToday ? 'ok' : ((have < todayNeed*0.25 || avail<=2) ? 'out' : 'low');
     var est=(cupMl===STRONG_CUP_ML)?'<span class="est">鮮奶茶概估</span>':'';
     var tag = lvl==='ok' ? '' :
               (lvl==='low' ? '<span class="cdot"></span><span class="ctag">可能不夠，建議補 '+gapCups+' 杯</span>'
