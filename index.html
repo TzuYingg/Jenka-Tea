@@ -425,7 +425,7 @@ function handoverData(b, amt){
 function handoverText(b, amt){
   var d=handoverData(b,amt);
   if(d.off) return d.name+' 免煮';
-  var parts=d.batches.map(function(bt){ return Math.round(bt.vol)+(bt.none>0?'（'+Math.round(bt.none)+'無糖）':''); });
+  var parts=d.batches.map(function(bt){ return Math.round(bt.vol)+(bt.none>0?' ('+Math.round(bt.none)+'無糖)':''); });
   return d.name+' '+parts.join('＋');
 }
 
@@ -593,8 +593,24 @@ function addSeg(wd){ if(!SCHED[wd])SCHED[wd]=defSeg(); SCHED[wd].push({s:'13:50'
 function removeSeg(wd,i){ if(!SCHED[wd])return; SCHED[wd].splice(i,1); if(!SCHED[wd].length)SCHED[wd]=defSeg(); saveMsg=''; render(); }
 function applyWeekdays(){ var src=schedFor(st.schedDay); [1,2,3,4,5].forEach(function(d){ SCHED[d]=src.map(function(x){return {s:x.s,e:x.e,w:x.w};}); }); saveMsg=''; render(); }
 function applyWeekend(){ var src=schedFor(st.schedDay); [0,6].forEach(function(d){ SCHED[d]=src.map(function(x){return {s:x.s,e:x.e,w:x.w};}); }); saveMsg=''; render(); }
-function copyHandover(){ var amt={}; TEAS.forEach(function(t){amt[t.id]=itemDue(t);}); var lines=BASES.map(function(b){ return handoverText(b,amt); });
-  var txt=lines.join('\n'); try{ navigator.clipboard.writeText(txt); planMsg='✓ 已複製交接訊息'; }catch(e){ planMsg='請手動長按複製'; } render(); }
+function bd(n){ return String(n).replace(/[0-9]/g,function(d){return String.fromCodePoint(0x1D7EC+(+d));}); }
+function teaPlain(t){ return t.name+(t.sugar==='half'?'半糖':'無糖'); }
+function stockUnit(t){ var p=fmt1(st.pot[t.id]||0)+'壺'; if(t.hasCup&&(st.cup[t.id]||0)>0) p+='＋'+(st.cup[t.id])+'杯'; return p; }
+function handoverMessage(){
+  var isT=(st.ctx==='tomorrow'), sell=isT?dateInfo(1):dateInfo(0), cook=dateInfo(0);
+  var amt={}; TEAS.forEach(function(t){ amt[t.id]=itemDue(t); });
+  var out=[];
+  if(isT){
+    out.push('▌ 打烊盤點_'+bd(cook.m)+'/'+bd(cook.day)+'('+cook.wd+')');
+    TEAS.forEach(function(t){ var ml=remainMl(t); out.push(teaPlain(t)+'　'+(ml>0?(Math.round(ml)+'ml（'+stockUnit(t)+'）'):'0')); });
+    out.push('');
+    out.push('▌ 明天要煮_'+bd(sell.m)+'/'+bd(sell.day)+'('+sell.wd+')');
+  }
+  BASES.forEach(function(b){ out.push(handoverText(b,amt)); });
+  return out.join('\n');
+}
+function copyHandover(){ var txt=handoverMessage();
+  try{ navigator.clipboard.writeText(txt); planMsg='✓ 已複製交接訊息'; }catch(e){ planMsg='請手動長按複製'; } render(); }
 
 function cloudHTML(){ return '<div class="cloud '+cloud+'"><span class="cd"></span>'+(cloud==='online'?'雲端已連線':cloud==='offline'?'雲端未連線':'連線中')+'</div>'; }
 
