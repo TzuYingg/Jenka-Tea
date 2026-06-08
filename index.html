@@ -259,6 +259,7 @@ html,body{background:var(--cream);color:var(--ink);font-family:"Noto Sans TC",sa
 .sphead{padding:10px 13px;background:var(--tint);font-size:13.5px;font-weight:600}
 .sprow{display:flex;align-items:center;gap:10px;padding:9px 13px;border-top:1px solid var(--border)}
 .sprow .snm{flex:1;min-width:0;font-size:13.5px;display:flex;flex-direction:column;gap:2px}
+.sprow .snm .snmn{display:block;font-size:13.5px;color:var(--ink)}
 .sprow .snm .base{font-size:10.5px;color:var(--ink3);font-weight:400}
 .sealv{min-width:54px;text-align:center;font-family:"DM Mono",ui-monospace,monospace;font-size:14px;font-weight:700;color:var(--ink)}
 </style>
@@ -637,10 +638,10 @@ function entriesHTML(editable){
 }
 function backHTML(){ return '<div class="back" onclick="setView(\'home\')">‹ 返回設定</div>'; }
 function subBaseHTML(){ var h=backHTML()+'<div class="subt">各茶基本量</div><div class="subd">每支茶平常一天的量（平日＝週二～五）。點數字可直接打，或用 −＋。</div>'; TEAS.forEach(function(t){ h+='<div class="erow2"><span class="nm">'+teaLabel(t)+'</span>'+stepHTML(t.id,'wk')+'</div>'; }); return h; }
-function tierBlock(key,title){ var h='<div class="spcard"><div class="sphead">'+title+'</div>'; TEAS.forEach(function(t){ var base=tierVal(t.id,'wk'), v=tierVal(t.id,key), same=(v===base); h+='<div class="sprow"><div class="snm">'+teaLabel(t)+'<span class="base">'+(same?'同平日':'平日 '+num(base))+'</span></div>'+stepHTML(t.id,key)+'</div>'; }); return h+'</div>'; }
+function tierBlock(key,title){ var h='<div class="spcard"><div class="sphead">'+title+'</div>'; TEAS.forEach(function(t){ var base=tierVal(t.id,'wk'), v=tierVal(t.id,key), same=(v===base); h+='<div class="sprow"><div class="snm"><span class="snmn">'+teaLabel(t)+'</span><span class="base">'+(same?'同平日':'平日 '+num(base))+'</span></div>'+stepHTML(t.id,key)+'</div>'; }); return h+'</div>'; }
 function subSpecialHTML(){ return backHTML()+'<div class="subt">特別日調整</div><div class="subd">這些日子的茶量跟平日不同；其餘日子用平日。跟平日相同會顯示灰字。</div>'+tierBlock('ph','平假日（週一）')+tierBlock('hol','假日（週六、日）'); }
 function subSegHTML(){ return backHTML()+'<div class="subt">營業時段與權重</div><div class="subd">選一天，編輯該日的時段與權重（即時盤點預估用）。</div>'+dayTabsHTML()+schedEditorHTML(); }
-function subSealHTML(){ var h=backHTML()+'<div class="subt">封杯提醒</div><div class="sealnote">下班前習慣先封好一定杯數給隔天用。盤點時這些封杯用「杯」欄數、已併入現有總量；這裡只設「要封幾杯」的提醒，不影響計算。會顯示在茶量頁下班盤點：「打烊前封 N 杯給明早」。</div>'; TEAS.forEach(function(t){ if(!t.hasCup)return; h+='<div class="sprow"><div class="snm">'+teaLabel(t)+'</div><div class="stp"><button onclick="bumpSeal(\''+t.id+'\',-1)">−</button><span class="sealv">'+sealOv[t.id]+' 杯</span><button onclick="bumpSeal(\''+t.id+'\',1)">＋</button></div></div>'; }); return h; }
+function subSealHTML(){ var h=backHTML()+'<div class="subt">封杯提醒</div><div class="sealnote">下班前習慣先封好一定杯數給隔天用。盤點時這些封杯用「杯」欄數、已併入現有總量；這裡只設「要封幾杯」的提醒，不影響計算。會顯示在茶量頁下班盤點：「打烊前封 N 杯給明早」。</div>'; TEAS.forEach(function(t){ if(!t.hasCup)return; h+='<div class="sprow"><div class="snm"><span class="snmn">'+teaLabel(t)+'</span></div><div class="stp"><button onclick="bumpSeal(\''+t.id+'\',-1)">−</button><span class="sealv">'+sealOv[t.id]+' 杯</span><button onclick="bumpSeal(\''+t.id+'\',1)">＋</button></div></div>'; }); return h; }
 function noteHTML(){ return '<div class="note">桶子上限 '+num(MAX_BUCKET)+' ml，超過自動分鍋。「即時盤點」依現在時鐘＋各日時段權重推估今天還要賣多少（整段未到計全權重、進行中按剩餘時間比例、已過歸零）。可賣杯數：紅茶／奶茶 ÷'+CUP_ML+'ml、濃茶以鮮奶茶 ÷'+STRONG_CUP_ML+'ml 概估。配方(每1000ml)：紅茶 茶葉20g/半糖糖71g｜濃茶 茶葉32.5g/半糖糖70g｜奶茶 經典6g/PA20.5g/奶精120g/糖49g。悶醒：紅濃 10/10、奶茶 20/10 分。</div>'; }
 function pageSet(){
   var h='<div class="head"><div class="title"><span class="leaf"></span>設定</div></div>';
