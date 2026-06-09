@@ -133,6 +133,13 @@ html,body{background:var(--cream);color:var(--ink);font-family:"Noto Sans TC",sa
 .edctrl .edval{width:62px;text-align:center;font-family:"Noto Sans TC",sans-serif;font-size:16px;font-weight:600;color:var(--ink);border:0;border-bottom:1.5px solid var(--border);background:transparent;padding:3px 0;font-variant-numeric:tabular-nums}
 .edctrl .edval:focus{outline:0;border-bottom-color:var(--accent)}
 .edctrl .edu{font-size:11px;color:var(--ink3);margin-left:-3px}
+.edwho{padding:11px 0 2px;border-top:1px solid var(--border);margin-top:2px}
+.edwho .wl{font-size:12px;font-weight:600;color:var(--ink2);margin-bottom:8px}
+.edwho .wl b{color:var(--danger);font-weight:600;margin-left:4px}
+.whochips{display:flex;flex-wrap:wrap;gap:7px}
+.whochips button{border:1px solid var(--border);background:var(--surface);color:var(--ink2);font-family:inherit;font-size:13px;font-weight:600;padding:7px 16px;border-radius:20px;cursor:pointer}
+.whochips button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.copybrew{margin-top:10px;width:100%;background:var(--surface);border:1px solid var(--border);color:var(--ink);font-family:inherit;font-size:13px;font-weight:600;padding:12px 0;border-radius:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px}
 .tagchg{font-size:10px;font-weight:600;color:var(--accent);background:var(--accent-soft);border-radius:6px;padding:1px 6px;margin-left:7px;vertical-align:2px}
 .brew .recipe{margin-top:12px;border:1px solid var(--border);border-radius:11px;overflow:hidden}
 .brew .rr{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--surface)}
@@ -347,6 +354,7 @@ var BASES=[
   {id:'strong', name:'濃茶', steep:10, rest:10, sugarPer1000:70, ing:[{n:'茶葉(經典)', per1000:32.5}], half:'s_half', none:'s_none'},
   {id:'milk', name:'奶茶', steep:20, rest:10, sugarPer1000:49, ing:[{n:'茶葉(經典)', per1000:6},{n:'茶葉(PA)', per1000:20.5},{n:'奶精', per1000:120}], single:'milk'},
 ];
+var STAFF=['Jen','Perry','RX'];   // 調整人名單（可改）
 var MAX_BUCKET=14000;   // 桶子上限(ml)，超過自動分鍋
 var CUP_ML=500;         // 一般出杯量(ml)：紅茶／奶茶
 var STRONG_CUP_ML=400;  // 濃茶以鮮奶茶實耗估算(ml)
@@ -356,7 +364,7 @@ var SCHED={}; for(var _wd=0;_wd<7;_wd++){ SCHED[_wd]=defSeg().map(function(x){re
 var DB='https://jenka-inventory-default-rtdb.asia-southeast1.firebasedatabase.app';
 var CFG_URL=DB+'/jenkaTea/config.json', PLAN_NEXT_URL=DB+'/jenkaTea/planNext.json', PLAN_TODAY_URL=DB+'/jenkaTea/planToday.json', HIST_URL=DB+'/jenkaTea/history', ADMIN_PW='jenka@kaka';
 
-var st={page:'brew', ctx:'tomorrow', day:'weekday', round:0, brewKind:'next', pot:{}, cup:{}, unlocked:false, schedDay:(new Date().getDay()), setView:'home', editKind:null, editVals:{}};
+var st={page:'brew', ctx:'tomorrow', day:'weekday', round:0, brewKind:'next', pot:{}, cup:{}, unlocked:false, schedDay:(new Date().getDay()), setView:'home', editKind:null, editVals:{}, editWho:''};
 var tot={}, sealOv={}, cloud='connecting', plans={next:null, today:null}, planMsg='', saveMsg='', saveOk=true, lockMsg='';
 var histData=null, histState='idle', histMsg='';  /* histState: idle/loading/ok/empty/error */
 st.histOpen={}; st.histMore=false; st.histQuery='';
@@ -540,6 +548,7 @@ function loadHistory(force){ if(histState==='loading')return; if(histData&&!forc
   }).catch(function(){ histState='error'; if(st.page==='hist')render(); }); }
 function fmtDkeyShort(dkey){ var p=String(dkey).split('-'); var d=new Date(+p[0],(+p[1])-1,+p[2]); return (+p[1])+'/'+(+p[2])+'（週'+WD_LABEL[d.getDay()]+'）'; }
 function fmtDkeyMinus(dkey,n){ var p=String(dkey).split('-'); var d=new Date(+p[0],(+p[1])-1,+p[2]); d.setDate(d.getDate()-n); return (d.getMonth()+1)+'/'+d.getDate()+'（週'+WD_LABEL[d.getDay()]+'）'; }
+function dkMinus(dkey,n){ var p=String(dkey).split('-'); var d=new Date(+p[0],(+p[1])-1,+p[2]); d.setDate(d.getDate()-n); return [d.getFullYear(),d.getMonth()+1,d.getDate()]; }
 function fmtAtDay(at){ var d=new Date(at); return (d.getMonth()+1)+'/'+d.getDate()+'（週'+WD_LABEL[d.getDay()]+'）'; }
 function baseTotals(plan){ var o={}; BASES.forEach(function(b){ var ids=[b.half,b.none,b.single].filter(Boolean); o[b.id]=ids.reduce(function(s,id){return s+(+plan[id]||0);},0); }); return o; }
 function toggleHistEntry(k){ st.histOpen[k]=!st.histOpen[k]; render(); }
@@ -652,7 +661,7 @@ function pageBrew(){
   }
   var ndk=p.dkey||dkeyOf(p);
   var forDay = (kind==='today') ? '今天現賣（即時補煮）' : (fmtDkeyMinus(ndk,1)+' 煮 → '+fmtDkeyMinus(ndk,0)+' 賣（冰鎮）');
-  h+='<div class="sub">'+t0.m+'/'+t0.day+'（週'+t0.wd+'）　・'+forDay+'　・'+hhmm(p.at)+' 送出</div>';
+  h+='<div class="sub">'+t0.m+'/'+t0.day+'（週'+t0.wd+'）　・'+forDay+'　・'+hhmm(p.at)+' 送出'+(p.editBy?'　・'+p.editBy+' '+hhmm(p.editAt||p.at)+' 調整':'')+'</div>';
   var editing=(st.editKind===kind);
   var src=editing?st.editVals:p.plan;
   h+=editPanelHTML(kind,p,editing);
@@ -671,23 +680,43 @@ function pageBrew(){
   var shown=0;
   perBase.forEach(function(x){ var bt=x.batches[st.round]; if(bt){ h+=brewCard(kind, x.b, bt, baseChanged(x.b,kind)); shown++; } });
   if(shown===0) h+='<div class="empty">這一鍋沒有要煮的。</div>';
+  h+='<button class="copybrew" onclick="copyBrew()">⧉ 複製最新煮茶量</button>';
   return h;
 }
+function brewMessage(){
+  var kind=st.brewKind, p=plans[kind]; if(!p||!p.plan) return '';
+  var src=(st.editKind===kind)?st.editVals:p.plan;
+  var ndk=p.dkey||dkeyOf(p);
+  var cookDk=(kind==='next')?dkMinus(ndk,1):dkMinus(ndk,0);   /* 煮茶日：開班=賣前一天、補煮=當天 */
+  var cd=new Date(cookDk[0],cookDk[1]-1,cookDk[2]);
+  var head='▌ '+(kind==='next'?'開班煮茶':'即時補煮')+'_'+(cd.getMonth()+1)+'/'+cd.getDate()+' ('+WD_LABEL[cd.getDay()]+')';
+  var out=[head];
+  BASES.forEach(function(b){ out.push(handoverText(b,src)); });
+  var who=(st.editKind===kind)?st.editWho:(p.editBy||'');
+  var whenTs=(st.editKind===kind)?Date.now():(p.editAt||p.at);
+  out.push('');
+  out.push('◍ '+(who?who+'  ':'')+hhmm(whenTs)+(who?' 調整':' 送出'));
+  return out.join('\n');
+}
+function copyBrew(){ var txt=brewMessage(); if(!txt){ planMsg='目前沒有可複製的煮茶量'; render(); return; }
+  try{ navigator.clipboard.writeText(txt); planMsg='✓ 已複製最新煮茶量'; }catch(e){ planMsg='請手動長按複製'; } render(); }
 function setBrewKind(k){ st.brewKind=k; st.round=0; st.editKind=null; render(); }
 function setRound(r){ st.round=r; render(); }
 function toggleEdit(){ var kind=st.brewKind, p=plans[kind];
   if(st.editKind===kind){ st.editKind=null; }
-  else if(p&&p.plan){ st.editKind=kind; st.editVals={}; TEAS.forEach(function(t){ st.editVals[t.id]=+p.plan[t.id]||0; }); }
+  else if(p&&p.plan){ st.editKind=kind; st.editVals={}; TEAS.forEach(function(t){ st.editVals[t.id]=+p.plan[t.id]||0; }); st.editWho=p.editBy||''; }
   planMsg=''; render(); }
+function setEditWho(name){ st.editWho=(st.editWho===name)?'':name; render(); }
 function bumpEditId(id,d){ st.editVals[id]=Math.max(0,(+st.editVals[id]||0)+d*1000); render(); }
 function setEditVal(id,v){ var n=parseInt(String(v).replace(/[^0-9]/g,''),10); st.editVals[id]=(isNaN(n)||n<0)?0:n; render(); }
 function resetEdit(){ var p=plans[st.brewKind]; if(!p||!p.plan)return; TEAS.forEach(function(t){ st.editVals[t.id]=+p.plan[t.id]||0; }); planMsg='已還原成送出時的量'; render(); }
 function saveEdit(){ var kind=st.brewKind, cur=plans[kind]; if(!cur||!cur.plan)return;
+  if(!st.editWho){ planMsg='✕ 請先點選是誰調整的'; render(); return; }
   var plan={}; TEAS.forEach(function(t){ plan[t.id]=+st.editVals[t.id]||0; });
-  var body={plan:plan, ctx:cur.ctx, day:cur.day, dlabel:cur.dlabel, dwd:cur.dwd, dkey:cur.dkey, pot:cur.pot, cup:cur.cup, at:Date.now()};
+  var body={plan:plan, ctx:cur.ctx, day:cur.day, dlabel:cur.dlabel, dwd:cur.dwd, dkey:cur.dkey, pot:cur.pot, cup:cur.cup, at:cur.at, editBy:st.editWho, editAt:Date.now()};
   planMsg='儲存中…'; render();
   fetch(planUrl(kind),{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
-  .then(function(r){ if(!r.ok)throw 0; plans[kind]=body; st.editKind=null; planMsg='✓ 已儲存調整（覆蓋這筆'+(kind==='next'?'開班':'補煮')+'）'; render(); })
+  .then(function(r){ if(!r.ok)throw 0; plans[kind]=body; st.editKind=null; planMsg='✓ 已儲存調整（'+body.editBy+'，覆蓋這筆'+(kind==='next'?'開班':'補煮')+'）'; render(); })
   .catch(function(){ planMsg='✕ 儲存失敗（連線或權限）'; render(); });
   archivePlan(body); }
 function baseChanged(b,kind){ if(st.editKind!==kind)return false; var p=plans[kind]; if(!p||!p.plan)return false;
@@ -703,6 +732,9 @@ function editPanelHTML(kind,p,editing){
        '<input class="edval mono" inputmode="numeric" value="'+num(v)+'" onchange="setEditVal(\''+t.id+'\',this.value)" onfocus="this.select()">'+
        '<span class="edu">ml</span>'+
        '<button onclick="bumpEditId(\''+t.id+'\',1)">＋</button></span></div>'; });
+  h+='<div class="edwho"><div class="wl">是誰調整的<b>*</b></div><div class="whochips">';
+  STAFF.forEach(function(nm){ h+='<button class="'+(st.editWho===nm?'on':'')+'" onclick="setEditWho(\''+nm+'\')">'+nm+'</button>'; });
+  h+='</div></div>';
   h+='<button class="bigbtn" onclick="saveEdit()">儲存調整（覆蓋這筆'+(kind==='next'?'開班':'補煮')+'）</button>'+
      '<button class="ghost" onclick="resetEdit()">還原成送出時的量</button>'+
      '<button class="ghost" onclick="toggleEdit()">收起</button>';
