@@ -140,6 +140,9 @@ html,body{background:var(--cream);color:var(--ink);font-family:"Noto Sans TC",sa
 .whochips button{border:1px solid var(--border);background:var(--surface);color:var(--ink2);font-family:inherit;font-size:13px;font-weight:600;padding:7px 16px;border-radius:20px;cursor:pointer}
 .whochips button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
 .copybrew{margin-top:10px;width:100%;background:var(--surface);border:1px solid var(--border);color:var(--ink);font-family:inherit;font-size:13px;font-weight:600;padding:12px 0;border-radius:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px}
+.lpush{margin-top:9px;width:100%;background:#06C755;border:0;color:#fff;font-family:inherit;font-size:13px;font-weight:600;padding:12px 0;border-radius:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px}
+.lpush:active{background:#05b34c}
+.lpush .ic{width:16px;height:16px}
 .tagchg{font-size:10px;font-weight:600;color:var(--accent);background:var(--accent-soft);border-radius:6px;padding:1px 6px;margin-left:7px;vertical-align:2px}
 .brew .recipe{margin-top:12px;border:1px solid var(--border);border-radius:11px;overflow:hidden}
 .brew .rr{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--surface)}
@@ -363,6 +366,9 @@ function defSeg(){ return [{s:'06:30',e:'10:00',w:4},{s:'10:00',e:'12:00',w:1},{
 var SCHED={}; for(var _wd=0;_wd<7;_wd++){ SCHED[_wd]=defSeg().map(function(x){return {s:x.s,e:x.e,w:x.w};}); }
 var DB='https://jenka-inventory-default-rtdb.asia-southeast1.firebasedatabase.app';
 var CFG_URL=DB+'/jenkaTea/config.json', PLAN_NEXT_URL=DB+'/jenkaTea/planNext.json', PLAN_TODAY_URL=DB+'/jenkaTea/planToday.json', HIST_URL=DB+'/jenkaTea/history', ADMIN_PW='jenka@kaka';
+/* LINE 推播：經煮茶專用 GAS 中介代發到群組（token/群組ID 都在 GAS，不放這裡） */
+var LINE_GAS_URL='https://script.google.com/macros/s/AKfycbzPNKhsL9m-YM-8X1MV_zVCutohpsyPybsc1mMLrwN6FZFjMEVXCtpb2p90vPtEjyLvpA/exec';
+var LINE_SECRET='jenka-tea-push';
 
 var st={page:'brew', ctx:'tomorrow', day:'weekday', round:0, brewKind:'next', pot:{}, cup:{}, unlocked:false, schedDay:(new Date().getDay()), setView:'home', editKind:null, editVals:{}, editWho:''};
 var tot={}, sealOv={}, cloud='connecting', plans={next:null, today:null}, planMsg='', saveMsg='', saveOk=true, lockMsg='';
@@ -379,6 +385,7 @@ var IC={
 function matIcon(n){ if(n.indexOf('茶葉')>=0)return IC.leaf; if(n.indexOf('奶精')>=0)return IC.cup; if(n.indexOf('糖')>=0)return IC.cube; return ''; }
 IC.clock='<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13.5" r="7"/><path d="M12 13.5V9.5M12 13.5l3 2M9.5 3.2h5"/></svg>';
 IC.pencil='<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L18.5 9.5a2 2 0 0 0-2.8-2.8L4 18v2Z"/><path d="M13.5 6.5l4 4"/></svg>';
+IC.line='<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5c-1 0-2-.15-2.9-.42L4 21l1.5-4.1A8.2 8.2 0 0 1 4 11.5 8.38 8.38 0 0 1 12.5 3 8.38 8.38 0 0 1 21 11.5Z"/></svg>';
 var TIERS=[{k:'wk',name:'平日'},{k:'ph',name:'平假日'},{k:'hol',name:'假日'}];
 var TIERMAP={0:'hol',1:'ph',2:'wk',3:'wk',4:'wk',5:'wk',6:'hol'};
 function tierKeyOf(wd){ return TIERMAP[wd]||'wk'; }
@@ -681,6 +688,7 @@ function pageBrew(){
   perBase.forEach(function(x){ var bt=x.batches[st.round]; if(bt){ h+=brewCard(kind, x.b, bt, baseChanged(x.b,kind)); shown++; } });
   if(shown===0) h+='<div class="empty">這一鍋沒有要煮的。</div>';
   h+='<button class="copybrew" onclick="copyBrew()">⧉ 複製最新煮茶量</button>';
+  h+='<button class="lpush" onclick="pushLine(\'brew\')">'+IC.line+'推播到 LINE 群組</button>';
   return h;
 }
 function brewMessage(){
@@ -700,6 +708,18 @@ function brewMessage(){
 }
 function copyBrew(){ var txt=brewMessage(); if(!txt){ planMsg='目前沒有可複製的煮茶量'; render(); return; }
   try{ navigator.clipboard.writeText(txt); planMsg='✓ 已複製最新煮茶量'; }catch(e){ planMsg='請手動長按複製'; } render(); }
+/* 推播到 LINE 群組：先跳確認，確認後經 GAS 代發。GAS 無 CORS，用 no-cors 送出（送得出但讀不到回應），不丟錯即視為已送出 */
+function pushLine(kind){
+  var txt=(kind==='handover')?handoverMessage():brewMessage();
+  if(!txt){ planMsg='目前沒有可推播的內容'; render(); return; }
+  var name=(kind==='handover')?'下班盤點交接訊息':'最新煮茶量';
+  if(!confirm('確定要把「'+name+'」推播到 LINE 群組嗎？\n\n'+txt)) return;
+  planMsg='推播中…'; render();
+  var body='secret='+encodeURIComponent(LINE_SECRET)+'&text='+encodeURIComponent(txt);
+  fetch(LINE_GAS_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:body})
+  .then(function(){ planMsg='✓ 已推播到 LINE 群組'; render(); })
+  .catch(function(){ planMsg='✕ 推播失敗（請檢查網路）'; render(); });
+}
 function setBrewKind(k){ st.brewKind=k; st.round=0; st.editKind=null; render(); }
 function setRound(r){ st.round=r; render(); }
 function toggleEdit(){ var kind=st.brewKind, p=plans[kind];
@@ -709,7 +729,7 @@ function toggleEdit(){ var kind=st.brewKind, p=plans[kind];
 function setEditWho(name){ st.editWho=(st.editWho===name)?'':name; render(); }
 function bumpEditId(id,d){ st.editVals[id]=Math.max(0,(+st.editVals[id]||0)+d*1000); render(); }
 function setEditVal(id,v){ var n=parseInt(String(v).replace(/[^0-9]/g,''),10); st.editVals[id]=(isNaN(n)||n<0)?0:n; render(); }
-function resetEdit(){ var p=plans[st.brewKind]; if(!p||!p.plan)return; TEAS.forEach(function(t){ st.editVals[t.id]=+p.plan[t.id]||0; }); planMsg='已還原成送出時的量'; render(); }
+function resetEdit(){ var p=plans[st.brewKind]; if(!p||!p.plan)return; TEAS.forEach(function(t){ st.editVals[t.id]=+p.plan[t.id]||0; }); planMsg='已還原至系統建議量'; render(); }
 function saveEdit(){ var kind=st.brewKind, cur=plans[kind]; if(!cur||!cur.plan)return;
   if(!st.editWho){ planMsg='✕ 請先點選是誰調整的'; render(); return; }
   var plan={}; TEAS.forEach(function(t){ plan[t.id]=+st.editVals[t.id]||0; });
@@ -735,8 +755,8 @@ function editPanelHTML(kind,p,editing){
   h+='<div class="edwho"><div class="wl">是誰調整的<b>*</b></div><div class="whochips">';
   STAFF.forEach(function(nm){ h+='<button class="'+(st.editWho===nm?'on':'')+'" onclick="setEditWho(\''+nm+'\')">'+nm+'</button>'; });
   h+='</div></div>';
-  h+='<button class="bigbtn" onclick="saveEdit()">儲存調整（覆蓋這筆'+(kind==='next'?'開班':'補煮')+'）</button>'+
-     '<button class="ghost" onclick="resetEdit()">還原成送出時的量</button>'+
+  h+='<button class="bigbtn" onclick="saveEdit()">儲存煮茶資料</button>'+
+     '<button class="ghost" onclick="resetEdit()">還原至系統建議量</button>'+
      '<button class="ghost" onclick="toggleEdit()">收起</button>';
   return h+'</div>'; }
 function brewCard(kind,b,bt,changed){
@@ -807,7 +827,8 @@ function pagePlan(){
     h+='<div class="hrow"><div class="hl"><div class="htn"><span class="cd"></span>'+b.name+'</div>'+sub+'</div>'+
        '<div class="htot">'+num(d.total)+'<span>ml</span></div></div>';
   });
-  h+='<button class="copy" onclick="copyHandover()">⧉ 複製交接訊息</button></div>';
+  h+='<button class="copy" onclick="copyHandover()">⧉ 複製交接訊息</button>'+
+     '<button class="lpush" onclick="pushLine(\'handover\')">'+IC.line+'推播到 LINE 群組</button></div>';
   h+='<button class="bigbtn" onclick="submitPlan()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:17px;height:17px"><path d="M5 4h11l3 3v13H5z"/><path d="M8 4v5h7"/><path d="M8 20v-6h8v6"/></svg>儲存今日茶量資料</button>';
   if(planMsg) h+='<div class="msg" style="color:'+(planMsg.indexOf('✕')>=0||planMsg.indexOf('失敗')>=0?'var(--danger)':'var(--ok)')+'">'+planMsg+'</div>';
   h+='<button class="ghost" onclick="loadLatestStock()">最新茶量資料</button>';
