@@ -627,6 +627,9 @@ function removeSeg(wd,i){ if(!SCHED[wd])return; SCHED[wd].splice(i,1); if(!SCHED
 function applyWeekdays(){ var src=schedFor(st.schedDay); [1,2,3,4,5].forEach(function(d){ SCHED[d]=src.map(function(x){return {s:x.s,e:x.e,w:x.w};}); }); saveMsg=''; render(); }
 function applyWeekend(){ var src=schedFor(st.schedDay); [0,6].forEach(function(d){ SCHED[d]=src.map(function(x){return {s:x.s,e:x.e,w:x.w};}); }); saveMsg=''; render(); }
 function bd(n){ return String(n).replace(/[0-9]/g,function(d){return String.fromCodePoint(0x1D7EC+(+d));}); }
+function sd(n){ return String(n).replace(/[0-9]/g,function(d){return String.fromCodePoint(0x1D7E2+(+d));}); }
+var SCMAP={a:0x1D00,b:0x299,c:0x1D04,d:0x1D05,e:0x1D07,f:0xA730,g:0x262,h:0x29C,i:0x26A,j:0x1D0A,k:0x1D0B,l:0x29F,m:0x1D0D,n:0x274,o:0x1D0F,p:0x1D18,q:0x71,r:0x280,s:0xA731,t:0x1D1B,u:0x1D1C,v:0x1D20,w:0x1D21,x:0x2093,y:0x28F,z:0x1D22};
+function sc(s){ return String(s).replace(/[A-Za-z]/g,function(ch){ var k=ch.toLowerCase(); return SCMAP[k]?String.fromCodePoint(SCMAP[k]):ch; }); }
 function teaPlain(t){ return t.name+(t.sugar==='half'?'半糖':'無糖'); }
 function stockUnit(t){ var p=fmt1(st.pot[t.id]||0)+'壺'; if(t.hasCup&&(st.cup[t.id]||0)>0) p+='＋'+(st.cup[t.id])+'杯'; return p; }
 function handoverMessage(){
@@ -697,13 +700,13 @@ function brewMessage(){
   var ndk=p.dkey||dkeyOf(p);
   var cookDk=(kind==='next')?dkMinus(ndk,1):dkMinus(ndk,0);   /* 煮茶日：開班=賣前一天、補煮=當天 */
   var cd=new Date(cookDk[0],cookDk[1]-1,cookDk[2]);
-  var head='▌ '+(kind==='next'?'開班煮茶':'即時補煮')+'_'+(cd.getMonth()+1)+'/'+cd.getDate()+' ('+WD_LABEL[cd.getDay()]+')';
+  var head='▌ '+(kind==='next'?'開班煮茶':'即時補煮')+'_'+bd((cd.getMonth()+1)+'/'+cd.getDate())+' ('+WD_LABEL[cd.getDay()]+')';
   var out=[head];
   BASES.forEach(function(b){ out.push(handoverText(b,src)); });
   var who=(st.editKind===kind)?st.editWho:(p.editBy||'');
   var whenTs=(st.editKind===kind)?Date.now():(p.editAt||p.at);
   out.push('');
-  out.push('◍ '+(who?who+'  ':'')+hhmm(whenTs)+(who?' 調整':' 送出'));
+  out.push('◍ '+(who?sc(who)+'  ':'')+sd(hhmm(whenTs))+(who?' 調整':' 送出'));
   return out.join('\n');
 }
 function copyBrew(){ var txt=brewMessage(); if(!txt){ planMsg='目前沒有可複製的煮茶量'; render(); return; }
