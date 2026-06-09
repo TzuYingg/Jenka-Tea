@@ -520,7 +520,8 @@ function resetTimersFor(kind){ stopAlarm();
   Object.keys(phaseDone).forEach(function(k){ if(k.indexOf(kind+'_')===0) delete phaseDone[k]; }); }
 function submitPlan(){ var plan={}; TEAS.forEach(function(t){ plan[t.id]=itemDue(t); });
   var kind=kindOf(st.ctx), di=(st.ctx==='tomorrow')?dateInfo(2):dateInfo(0);
-  var body={plan:plan, ctx:st.ctx, day:st.day, dlabel:di.m+'/'+di.day, dwd:di.wd, dkey:di.key, pot:Object.assign({},st.pot), cup:Object.assign({},st.cup), at:Date.now()};
+  var sell=(st.ctx==='tomorrow')?dateInfo(1):dateInfo(0);   /* 賣的那天：開班＝隔天、補煮＝當天（星期/日期標籤用） */
+  var body={plan:plan, ctx:st.ctx, day:st.day, dlabel:sell.m+'/'+sell.day, dwd:sell.wd, dkey:di.key, pot:Object.assign({},st.pot), cup:Object.assign({},st.cup), at:Date.now()};
   planMsg='送出中…'; render();
   fetch(planUrl(kind),{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
   .then(function(r){ if(!r.ok)throw 0; resetTimersFor(kind); plans[kind]=body; planMsg='✓ 已送出到「'+(kind==='next'?'下班盤點':'即時盤點')+'」'; render(); })
